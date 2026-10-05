@@ -1,0 +1,299 @@
+# factor — decision log
+
+Every design decision and open question, one block each.
+
+- **ID:** each block is `D-NNN` plus a name, and the ID never changes or gets reused. Feature IDs
+  (`F-NNN`) come from the feature catalogue, a separate namespace.
+- **Status:**
+  - `ruled`: Peter decided it.
+  - `applied`: done, but not explicitly ruled.
+  - `open`: undecided.
+- **Peter's words** are quoted verbatim, typos included. Puck's proposals are labelled as proposals.
+  A superseded ruling stays here as a rejected option, with the reason it lost.
+- `CLAUDE.md` carries only the ruled outcomes, so read this file for the reasoning and the open questions.
+
+---
+
+## Ruled
+
+### D-001 Platform
+- **Status:** ruled 2026-10-05
+- **Peter:** "this will start as a rust based desktop app and will likely stay that way. we can run on mac for now but eventually i'll want a windows version"
+- **Outcome:** a Rust desktop app. macOS first and Windows later, so nothing may rule Windows out.
+
+### D-002 Multi-game core, no lock-in
+- **Status:** ruled 2026-10-05
+- **Peter:** "this is more than satisfactory although that is a start there are common things all these games do. i just don't want to lock us in to satisfactory and adding anothr causes a full rewrite, so we'll need to be smart about it."
+- **Peter:** "techtonia and foundry and factorio are other examples i have used in terms of playing them. which is why i think there is similaries and differences"
+- **Outcome:** the core is game-neutral. Satisfactory is the first game, not the core's template. Design the core from several games' data shapes. Peter's experience playing the other games is primary evidence.
+- **Games in scope:** Satisfactory, Factorio, Techtonica, Foundry, Alchemy Factory.
+
+### D-003 Game data pipeline
+- **Status:** ruled 2026-10-05
+- **Peter:** "for the game resources we'll want a genertor to read them and then generate the rust data files"
+- **Peter, on runtime loading over compiled-in source:** "i agree with your lean and is how i approached this initially"
+- **Outcome:** each game gets a generator that reads that game's resources and emits data files. The app loads those files at runtime into a strongly typed Rust model, with validation at load.
+- **Rejected:** generated Rust source compiled into the app. Every patch, new game or mod pack would mean a rebuild, and modded recipes couldn't be loaded.
+- **Puck's reading, not confirmed:** "your lean" is taken to mean the runtime-data option, since that was the lean Puck had stated.
+
+### D-004 Raw game bundle stays out of git
+- **Status:** ruled 2026-10-05, via the option "Ignore raw bundle"
+- **Outcome:** `resources/CommunityResources.zip` and the expanded tree are gitignored. Instead, commit a small extract the calculator produces.
+- **Why:** the bundle is 585 MB. It carries no licence or readme, so redistribution terms are unverified.
+- **Rejected:**
+  - Track the zip only: history grows by about 20 MB per game update, and the raw bundle gets republished.
+  - Track en-US plus the small files: same republication issue.
+  - Git LFS: adds tooling and quota, and is still a republication.
+
+### D-005 Planning, not simulation
+- **Status:** ruled 2026-10-05
+- **Peter:** "i don't know that we need to model fluids differently from items really, we aren't running a simulation we are defining the layouts that would use max capacity available."
+- **Peter:** "so fluid dymanics shouldn't matter, jsut throughput"
+- **Outcome:** steady-state rates at full capacity. Fluids are ordinary items in the maths, and only throughput matters. The generator normalises units at import. Satisfactory appears to store fluid amounts in thousandths of m³: that's inferred from game knowledge, consistent with the Water Extractor's `2000` per 1 s cycle, and not stated in the data.
+
+### D-006 Transport is a first-class generic concept
+- **Status:** ruled 2026-10-05; the details are open (D-013, D-014, D-015)
+- **Peter:** "transport should be its own thing, there are also trains , trucks and drones."
+- **Peter:** "so a generic "conveyor" or whatever we call it, needs multiple specific types for the caps."
+- **Outcome:** one generic carrier concept. Each game's generator supplies the specific types (Belt Mk.1–Mk.6, Pipeline Mk.1/2, Truck, Freight Car, Drone, …), each with its own cap.
+
+### D-007 Power and modifiers follow per-game curves
+- **Status:** ruled 2026-10-05; how the solver handles it is open (D-016)
+- **Peter:** "same with power, some times the cost of adding increasing power output the gain may not be the same, doubling production could cost double+x power vs just double"
+- **Outcome:** power and production modifiers are per-game curves, not one linear rule.
+- **Data (measured):** Satisfactory machines carry `mPowerConsumptionExponent` 1.321929 and `mProductionBoostPowerConsumptionExponent` 2.0.
+- **Inferred from game knowledge:** power = base × clock^exponent. On that basis, doubling output costs:
+  - 2× power, plus a building, with a second machine;
+  - 2.5× power by overclocking;
+  - 4× power with a Somersloop.
+
+### D-008 Clocks are continuous and exact
+- **Status:** ruled 2026-10-05, as a requirement taken from Peter's practice; the implementation is in D-016
+- **Peter:** "in satisfactory i optimise the production. need 1.5 items/min from machines that generate 1/min i use two machines at 0.75 i have multiple instances where the most efficient design based on maximising output with limited puts are 4 decimal place. ie 88.8888"
+- **Outcome:**
+  - Clocks are continuous, not fixed steps.
+  - The plan spreads load evenly across whole machines.
+  - A clock shown to the user is a value the game accepts, to 4 decimal places.
+- **Puck's derivation, not ruled:**
+  - Arithmetic uses exact fractions (8/9, not a float).
+  - Rounding never overdraws a limited input, so it rounds down when input-limited.
+
+### D-009 What a machine computes is separate from how it is laid out and drawn
+- **Status:** ruled 2026-10-05; the layer split is open (D-012)
+- **Peter:** "there is also disply vs internal difference. how a machine displays and its input locations could be different that just the raw calculations of items->outputs"
+- **Outcome:** the calculation model has no knowledge of ports, positions or drawing.
+
+### D-010 Where decisions and work are tracked
+- **Status:** ruled 2026-10-05, via the options "Decision log in the repo" and "Register factor in brain"
+- **Peter:** "many things like that we'll eventually need to track."
+- **Outcome:**
+  - Decisions go in this file.
+  - Work items go in brain (project `factor`, id 40).
+  - `CLAUDE.md` keeps ruled outcomes only.
+- **Not selected, with no reason given by Peter:** "Keep it all in CLAUDE.md" and "Use quince".
+  - Puck's option text, not Peter's reasoning: `CLAUDE.md` costs context on every session and mixes settled with open items; quince's readiness was unchecked.
+
+### D-011 Carry vocabulary and layout from factory_calc, not its code
+- **Status:** applied 2026-10-05, not explicitly ruled
+- **Peter:** "i may on disk here have a factory cal where i started this work manually last year. maybe some of it is still there an useful"
+- **Outcome:** carried from `~/work/repos/factory_calc`: the `cmd/` + `libs/` workspace layout, Rust 2024, and the vocabulary `Unit` / `Formula` / `Fabricator` / `GlobalModifiers`. The code was not carried.
+- **Why it isn't marked ruled:** Puck announced the carry-over and asked Peter to object if he wanted any of it out. His reply ("i agree with your lean") was taken to answer D-003, not this.
+- **Model fixes noted for the rebuild:**
+  - A machine type runs many formulas, and which one it runs belongs to the layout.
+  - Identity is by id only.
+  - A `GlobalModifiers` field in the old model was never used.
+
+---
+
+## Open
+
+Research behind these lives in `docs/research/`:
+- `engine-2026-10.md`: the engine brief. "Brief §N" below refers to it. Its own decision labels D1–D6 are mapped onto D-016 and D-020 to D-024 here.
+- `lp_bench*.py`: its benchmarks. Run them with `uv run lp_bench.py <en.json as UTF-8>`.
+- `calc-features.json` and `calc-tools.md`: the feature catalogue (`F-NNN`) and the tool survey behind it.
+- `data-sources-2026-10.md`: the data-sources brief, covering save parsers, missing-data sources, publisher terms and the cross-game model matrix. "Data brief §N" refers to it; its §8 decisions are mapped onto D-019 and D-025 to D-029.
+
+### D-012 Layer split: calculation, physical, presentation
+- **Status:** open
+- **Context:** D-009.
+- **Proposal (Puck):** three layers.
+  - **Calculation:** formulas and rates.
+  - **Physical:** footprint, port count, positions and kinds, per-port and per-carrier caps.
+  - **Presentation:** diagram nodes, grouping, positions. One diagram node may stand for many machines.
+- **The catch:** physical limits feed back into the calculation, since whether a plan can actually be built depends on belt caps and port counts. Proposal: the solver takes physical limits as optional constraints.
+- **Data gap (measured):** Docs has machine footprints (`mClearanceData`) but no port data. `mFactoryInputConnections` and `mPipeInputConnections` are empty on all 11 manufacturers.
+
+### D-013 Name for the generic carrier concept
+- **Status:** open
+- **Options:**
+  - **Conveyance:** the most general; covers belts and drone routes equally. *Puck's pick.*
+  - **Carrier:** plain, reads well in code; leans toward vehicles.
+  - **Conduit:** fits belts and pipes, a stretch for trains.
+  - **Conveyor:** Peter's placeholder word. In Satisfactory it already means the belt, which risks confusion.
+
+### D-014 Carrier families and route consumption
+- **Status:** open
+- **Proposal (Puck):** two families.
+  - **Continuous** (belts, pipes): a fixed rate cap per tier.
+  - **Route** (trains, trucks, drones): throughput = capacity per trip ÷ round-trip time.
+    - Capacity = inventory slots × the item's stack size.
+    - Round-trip time is user-supplied, since it depends on the route and isn't in the game data.
+    - A route consumes batteries, fuel or power. That makes it a recipe-like consumer which feeds back into the calculation.
+- **Data (measured, Docs):**
+  - Inventory slots: Freight Car 32, Truck 48, Tractor 25, Drone 9.
+  - Drone Port `mTripPowerCost` and `mTripPowerPerMeterCost`.
+  - Vehicle `mAutopilotFuelConsumption`.
+  - Electric Locomotive power min/max.
+  - Item stack-size enums.
+
+### D-015 Matching items to belts or pipes
+- **Status:** open
+- **Options:**
+  - **(a) Each carrier type declares the item forms it accepts:** solid, liquid or gas, all already in Docs as `mForm`. No new tag on items. *Puck's pick.*
+  - **(b) A belt/pipe tag on each item.** Proposed first, before D-006.
+- Either way, the calculation never sees it; it serves the physical layer only.
+
+### D-016 Nonlinear power and clocks in the solver
+- **Status:** open
+- **Context:** D-007, D-008.
+- **Options:**
+  - **(a) Fixed clock steps** as separate solver options. *Weakened by D-008:* Peter uses arbitrary exact clocks.
+  - **(b) Piecewise-linear approximation:** mixed-integer, approximate power, any clock.
+  - **(c) Solve rates as a linear program, then size machines.** The machine count comes from Peter or a rule (fewest buildings, least power). Clock = rate ÷ (count × base), exact. Power is computed from the curve afterwards. Power enters the solver only when it is the binding limit ("most output from 500 MW"). *Puck's current lean, revised after D-008.*
+- **Research (engine brief (docs/research/engine-2026-10.md) §3, 2026-10-05):**
+  - Every tool read fixes the clock per recipe before solving and computes power afterwards. For a fixed clock, power is linear in rate; that's Sage's derivation, labelled inferred.
+  - Somersloops change material flow, so they have to go inside the solve, not after it.
+  - Whole machines come from rounding up after the solve in every tool read.
+  - The brief's recommendation is "option A first": clock fixed before the solve, which is (c) above. Somersloop-stock optimisation as a mixed-integer model (its "option B") is added only when wanted.
+  - This is the brief's D2.
+
+### D-017 Core calculation model
+- **Status:** open
+- **Peter:** "i assume currenly we need something like a sat solver, but we can discussion. modeller dies because it can't calculate all the nodes on a change and it looks like it runs out of memory. its java so that is always an issue. it does have some nice features but it isn't structured how i like."
+- **Options:**
+  - **(a) Linear programming,** mixed-integer only where whole machines are required. Used for planning ("hit these targets") and for propagating flows through a drawn graph. *Puck's recommendation.*
+  - **(b) SAT / constraint programming.** Peter's starting assumption. Puck's view: SAT answers yes/no over true/false variables, while factory rates are continuous and the questions are optimisation questions.
+  - **(c) Graph propagation, Modeler-style.** It fails at scale when every node is recomputed on each change, and loops have to be iterated until they settle.
+- **Proposal (Puck), whatever the solver:** recompute only the connected part a change touches, and solve loops directly as equations.
+- **Related features:** F-001 to F-005 in the feature catalogue are the five calculation models found in existing tools.
+- **Research (engine brief (docs/research/engine-2026-10.md) §1–2, 2026-10-05):**
+  - **Linear programming is enough.** Neither SAT nor a mixed-integer model is needed for rates.
+  - **Measured by Sage, and re-run by Puck with matching results** (HiGHS 1.15.1 via Python, Apple M4):
+    - whole-game Satisfactory, 291 machine recipes: about 0.9 ms;
+    - 300 coupled factory copies (141,600 columns) with binding resource caps: about 666 ms.
+  - **Proving a model infeasible is the slow case:** 8.9 s, against 0.47 s for a feasible one (Sage, not re-run).
+  - **Modeler is slow because of its semantics, not its solver** (observed, from its 2025-03-26 devlog). It simulates in-game splitter and merger behaviour, and its own manual calculators "always run quickly". That makes D-020 the deciding question.
+- **Still unanswered:** what "isn't structured how i like" means: factory organisation (sub-factories, hierarchy) or tool workflow.
+
+### D-018 Raw resources: free up to a cap, or must be sourced
+- **Status:** open
+- **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
+
+### D-019 Icons and map data: source and redistribution
+- **Status:** open
+- **Context:** features F-094, F-095, F-096. The CommunityResources bundle has texture paths but no images, and no node, collectible or port positions. Extraction from a local install is possible (FModel or CUE4Parse plus the bundle's `.usmap`). Whether extracted art and data may be redistributed is a licence question; SCIM's licence forbids reusing its map data. Repo visibility (public by default) makes this matter before the first push.
+- **Research (data brief §2–5, 2026-10-05):**
+  - **Coffee Stain:** no published terms on redistributing extracted data or art were found. The modding docs say redistributing extracted assets "should not be done without permission". The Satisfactory wiki's text is CC BY-NC-SA 4.0, which is non-commercial.
+  - **Where the missing data can come from:** node positions, default purity and icons can be extracted from the user's own install with CUE4Parse or FModel, using the bundle's `.usmap` and `CustomVersions.json`. The projects that do this keep extracted data out of their repos.
+  - **Purity multipliers:** 0.5× / 1× / 2× is reported, not extracted.
+  - **No source anywhere** for machine port counts or positions.
+- **Icons sub-question (data brief §8.4):** ship them, have users extract them, or use none.
+
+### D-020 Graph semantics: conservation and ratios, or in-game splitter behaviour
+- **Status:** open. The engine brief calls it the decision that shapes the engine most (brief §7 D1).
+- **Options:**
+  - **(a) Conservation plus fixed ratios:** a linear program, fast and well understood. *Recommended by the brief.*
+  - **(b) In-game behaviour:** even splits, priority splitters, backpressure, deadlock or starvation detection. This is what Modeler's users praise **and** what makes it slow. The only route the brief found is an untested sequence of linear programs.
+- **Brief's recommendation:** (a) as the core. In-game simulation is **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan.
+
+### D-021 Solver dependency
+- **Status:** open (brief §7 D3)
+- **Options:**
+  - **(a) HiGHS:** MIT licence, fast, gives duals. Needs CMake and a C++ compiler to build, plus libclang on Windows.
+  - **(b) microlp:** pure Rust, Apache-2.0, no duals, slower and less proven.
+- **Recommended by the brief:** HiGHS behind factor's own trait, with microlp kept compiling as a fallback that needs no toolchain.
+- **Traps:**
+  - `good_lp` defaults to the CBC backend (EPL-2.0 licence, system library), so set `default-features = false`.
+  - The `highs` crate doesn't wrap HiGHS's IIS, ranging or warm-start calls, so those need unsafe FFI.
+- **Unverified:** whether HiGHS still needs `libomp` on macOS. The build-cleanly claims rest only on CI configuration files.
+
+### D-022 Exactness: floats with a residual check, or exact rationals for results
+- **Status:** open (brief §7 D4)
+- **Context:** D-008 requires exact clock values to 4 decimal places that never overdraw a limited input.
+- **Recommended by the brief:** show rationals, and re-check the final basis in exact arithmetic. YAFC's precision bugs are the cautionary tale.
+
+### D-023 Default objective and penalty weights
+- **Status:** open (brief §7 D5)
+- **Options:**
+  - least raw resources, weighted by scarcity;
+  - fewest buildings;
+  - least power;
+  - user-tunable, as in FactorioLab.
+- Each option changes which alternate recipes the plan picks.
+- **Related:** the brief recommends an *elastic* model by default. Every item gets penalised surplus, import and "can't produce" slack, so a plan always comes back with its problems named, never a bare "infeasible". IIS stays a developer tool. That elastic default is folded in here as a proposal, not ruled.
+
+### D-024 "Plan to targets" and "the graph I drew": one view or two
+- **Status:** open (brief §7 D6)
+- **Context:** YAFC's linked tables, Foreman2's nodes and Modeler's canvases are three interaction models over the same linear program. The brief's proposed engine shape compiles both front ends to one solver layer (brief §6).
+
+### D-025 factor's own licence
+- **Status:** open (data brief §8.1)
+- **Context:**
+  - The only Rust Satisfactory save parser found (`valentinps/satisfactorymap`) reads 1.2. It is AGPL-3.0 under a "non-transferable" permission from GreyHak, tied to a browser tool, so it can't simply be reused.
+  - The only permissively licensed parser claiming 1.2 support is `etothepii4/satisfactory-file-parser` (TypeScript, MIT). Its history before 2024-10-06 isn't visible, so its ancestry is unconfirmed.
+  - moritz-h's format document covers save version 58. The bundle is at 60 (measured: `CustomVersions.json` `SaveVersion` = 60). Versions 59 and 60 look like data migrations only, inferred from the header comments.
+  - Which parser factor builds on, or ports, follows from this licence choice.
+- **Options:** AGPL; permissive (MIT/Apache); commercial or closed.
+
+### D-026 How game data reaches users
+- **Status:** open (data brief §8.2, §8.3)
+- **Options, per game:**
+  - **(a) Ship generated data files.** Needs redistribution rights, which are unconfirmed for every game.
+  - **(b) Ship only the generators,** run by users against their own install. Nothing is redistributed.
+  - **(c) Ask the publishers.** Coffee Stain, and Wube before any commercial release.
+- **Publisher terms found:**
+  - **Wube:** its ToS requires "express consent" for commercial asset use, but it publishes its Lua prototype data and names calculators as an intended use.
+  - **Foundry (Paradox):** user-generated content, "scripts and programs" included, is non-commercial only.
+  - **Techtonica, Alchemy Factory, DSP:** no policy found.
+- **⚠ Platform tension, raised by the research:** with option (b), users extract from their own install, but four of the five games are Windows-only; only Factorio has a native macOS build. factor is macOS-first (D-001). The extractors are probably portable (inferred); getting Windows game files onto the Mac is the problem.
+- **Licences not checked:** the Satisfactory and Alchemy Factory pipelines depend on Oodle decompression.
+- **Related:** D-003 (generators) and D-004 (raw bundle out of git).
+
+### D-027 Randomised 1.2 worlds
+- **Status:** open (data brief §8.5)
+- **Context:** Satisfactory 1.2 can randomise each node's resource and purity. Saves carry `mResourceClassOverride` and `mPurityOverride` on node actors (observed in two parsers). That the override is written on every non-geyser node is the parser author's report, untested. If true, a fixed node table is right only for the default world, and node data has to come from the save.
+
+### D-028 Acceptable community data inputs
+- **Status:** open (data brief §8.6, §8.7)
+- **Context:** whether to use unlicensed or reuse-restricted community datasets, and whether numbers or text may be copied from the non-commercial Satisfactory wiki. SCIM's licence forbids reusing its data.
+
+### D-029 Scope of the shared core model
+- **Status:** open (data brief §6, §8.8)
+- **Evidence-backed core (inferred from the 6-game matrix; a concept qualifies if it appears in at least 5 of 6 games):**
+  1. Items and fluids as one thing with a form tag.
+  2. Recipes as inputs → outputs over a cycle time, with multiple outputs and catalysts allowed.
+  3. Random outputs as expected rates.
+  4. Machines with a speed and a list of recipes they can run.
+  5. Extraction as a recipe with no inputs, times a site multiplier.
+  6. Two carrier families: continuous (rate per tier) and route (slots × stack size). Also a global belt multiplier.
+  7. Game-wide modifiers, with exemptions for individual recipes.
+  8. Per-machine utility consumption under a per-game rule.
+  9. An unlock graph.
+- **Per-game extensions, not core:**
+  - Satisfactory: Somersloops, shards, the nonlinear power curve.
+  - Factorio: modules, beacons, quality.
+  - DSP: the proliferator, which is a consumed input.
+  - Foundry: robot stations.
+  - Alchemy Factory: cauldron, catalyst charges, heat, nutrients, money.
+  - Fluid temperature.
+- **Open sub-questions:**
+  - A per-machine modifier slot appears in 4 of 6 games, one short of the bar. The data brief suggests it as a core *hook*, not core data.
+  - Alchemy Factory's value-based cauldron recipes (447,580 combinations) can't be listed as Formulas.
+  - Power as a generic per-game "utility resource" (heat in Alchemy Factory).
+- **Vocabulary check (D-011):**
+  - `Unit` and `Fabricator` hold.
+  - `Formula` needs flags (such as cost-multiplier exemption) plus conversion of batch multipliers and catalyst charges.
+  - `GlobalModifiers` breaks, since most modifiers are per machine, some act on belts or fuel, and DSP's proliferator is an input.
+- **Prior art:** FactorioLab (MIT) already serves more than ten games from one schema, and puts purity, Somersloops, the proliferator and Foundry's robots under a single "module" idea with per-game flags. Compare against it before designing.
+- **Supports D-014:** Factorio and Foundry measure wagon capacity in stacks, which backs the slots × stack-size proposal.
+

@@ -1,0 +1,1901 @@
+[
+  {
+    "id": "F-001",
+    "name": "LP auto-solve to target rates",
+    "category": "Solver",
+    "description": "You enter target items and rates; a linear-programming solver chooses which recipes to run and how many machines of each, minimising some cost.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "Kirk McDonald Satisfactory Calculator",
+      "FactorioLab",
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "SatisfactoryBase",
+      "Satisfactory Solver",
+      "Satisfactory-Optimizer",
+      "SatisfactoryMCP",
+      "Kirk McDonald Factorio Calculator",
+      "YAFC-CE",
+      "Factory Planner (Factorio)",
+      "Foreman2",
+      "dsp-calc-opt"
+    ],
+    "data_supported": "yes — recipes, durations, ingredients/products and producers are all in Docs (872 FGRecipe); fluid amounts are stored x1000 (Plastic: crude Amount=3000 = 3 m³)",
+    "notes": "observed (repos/sites). SCIM's planner also computes chains but its method could not be verified (Cloudflare 403), so it is not listed here. The baseline every serious tool has. FP's 'matrix solver' is optional; Foreman2/YAFC use OR-Tools; FactorioLab GLPK; FICSIT Planner and dsp-calc-opt HiGHS-WASM; SatisfactoryTools solves server-side."
+  },
+  {
+    "id": "F-002",
+    "name": "Recursive tree expansion (no optimiser)",
+    "category": "Solver",
+    "description": "Each item is made by one chosen recipe and the tool expands ingredients recursively to the target rate; no optimisation, no global balancing.",
+    "seen_in": [
+      "Alchemy Factory Calculator",
+      "Factory Manager",
+      "Factory Planner (Factorio)"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. Simplest model; breaks on recipe loops and shared byproducts (Alchemy calc README admits 'recursive loop calculations and the weirdness'). Factory Manager combines shared intermediates on top of it."
+  },
+  {
+    "id": "F-003",
+    "name": "Manual node graph with rate propagation",
+    "category": "Solver",
+    "description": "The user places recipe/splitter/merger nodes and wires them; the tool propagates rates through the user-built graph but never chooses recipes itself.",
+    "seen_in": [
+      "Ficsit Companion",
+      "Satisfactory Architect",
+      "Ferrumium",
+      "Foreman2",
+      "Satisfactory Modeler"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (SA inferred from source). Ficsit Companion's author rejects auto-planning on purpose ('takes away part of the fun'). Distinct from the LP solver: the user owns the structure."
+  },
+  {
+    "id": "F-004",
+    "name": "Splitter/merger behaviour simulation",
+    "category": "Solver",
+    "description": "Simulates how in-game splitters and mergers actually divide and combine flow (including priority splitters), so a drawn layout's real throughput is computed, not the ideal ratio.",
+    "seen_in": [
+      "Satisfactory Modeler"
+    ],
+    "data_supported": "partial — buildings exist in Docs, but split/merge behaviour is game logic, not data",
+    "notes": "observed. Modeler's headline differentiator ('no other Satisfactory planning tool can do'). Reviews say it is slow on large builds and lacks custom split ratios (reported, vaporlens)."
+  },
+  {
+    "id": "F-005",
+    "name": "Manual ledger with satisfy/trim sizing",
+    "category": "Solver",
+    "description": "The user sets quantities by hand; the tool reports each shortfall or surplus and offers buttons that size a row exactly to need or to supplier capacity, naming the number it will set.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Spreadsheets"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (spreadsheets reported: refactory is listed as 'spreadsheet-like tool for manual decision-making'). Satisfactory Factories has no solver at all; this is its alternative. Buttons show their result ('Trim (480)') before you press."
+  },
+  {
+    "id": "F-006",
+    "name": "Maximize output under limits",
+    "category": "Solver",
+    "description": "Instead of a target rate, maximise production of one or more items (optionally in fixed ratios) subject to resource or recipe limits.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "FactorioLab",
+      "Satisfactory-Optimizer"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (SatisfactoryTools 'max' production type; FactorioLab Maximize+Limit objectives). Satisfactory-Optimizer inferred from description. Needs limits or the LP is unbounded — FactorioLab explains this in-app."
+  },
+  {
+    "id": "F-007",
+    "name": "Scale targets to a pinned input",
+    "category": "Solver",
+    "description": "Type how much of a raw resource you actually have and the targets scale to consume exactly that.",
+    "seen_in": [
+      "FICSIT Planner",
+      "FactorioLab"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (FICSIT Planner README claim; FactorioLab 'Input' objective = 'I am already producing this quantity'). Kirk's 2019 request 'calculate based on input rate' is still open (absence not verified in source)."
+  },
+  {
+    "id": "F-008",
+    "name": "Use on-hand / external supply",
+    "category": "Solver",
+    "description": "Mark items that arrive from elsewhere (another factory, a train) so the plan consumes them rather than building their chain.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "FICSIT Planner",
+      "Alchemy Factory Calculator",
+      "dsp-calc-opt",
+      "Satisfactory Logistics",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "n-a — user input",
+    "notes": "observed. dsp-calc-opt models it as negative demand; Alchemy calc as 'external input toggles'; Satisfactory Logistics Map uses actual factory surplus from the save."
+  },
+  {
+    "id": "F-009",
+    "name": "Per-resource caps",
+    "category": "Solver",
+    "description": "Set a per-minute maximum for each raw resource (default: the whole map's supply) that the plan may not exceed.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "FICSIT Planner",
+      "SatisfactoryBase",
+      "Satisfactory Solver",
+      "FactorioLab"
+    ],
+    "data_supported": "partial — the default 'whole map' cap needs node counts and purities, which are world data not in Docs",
+    "notes": "observed. Every tool hardcodes map totals; SCIM's node data is licence-locked against reuse."
+  },
+  {
+    "id": "F-010",
+    "name": "Resource scarcity weighting",
+    "category": "Solver",
+    "description": "Weights in the objective so the solver prefers abundant resources and spares scarce ones (or treats all equally).",
+    "seen_in": [
+      "SatisfactoryTools",
+      "Kirk McDonald Satisfactory Calculator",
+      "FICSIT Planner",
+      "Satisfactory Solver",
+      "FactorioLab"
+    ],
+    "data_supported": "partial — weights are usually derived from map totals (not in Docs)",
+    "notes": "observed. Kirk uses drag-to-rank priority; SatisfactoryTools 'resourceWeight'; FICSIT Planner 'spare scarce first' vs 'All equal'. SatisfactoryTools issue notes weights not derived from max (2020)."
+  },
+  {
+    "id": "F-011",
+    "name": "Selectable optimisation goal",
+    "category": "Solver",
+    "description": "Choose what 'best' means — fewest buildings, least power, least raw resource, smallest footprint — and get a different plan.",
+    "seen_in": [
+      "Satisfactory Logistics",
+      "Satisfactory Solver",
+      "FactorioLab",
+      "dsp-calc-opt",
+      "Satisfactory-Optimizer"
+    ],
+    "data_supported": "yes for power/buildings/resources; partial for footprint (mClearanceData boxes)",
+    "notes": "observed. Satisfactory Logistics shows 'compact' vs 'power-efficient' side by side with a summary panel to compare methods."
+  },
+  {
+    "id": "F-012",
+    "name": "Solver cost tuning",
+    "category": "Solver",
+    "description": "Expose the solver's penalty weights (surplus, unproduceable item, excluded item, machine count, footprint, recipe cost) to the user.",
+    "seen_in": [
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Power-user feature; FactorioLab is the only one surfacing it."
+  },
+  {
+    "id": "F-013",
+    "name": "Infeasibility diagnostics",
+    "category": "Solver",
+    "description": "When no plan exists, say why — which limit is too tight, which recipe makes a maximise unbounded, which ticked alternate was kept out.",
+    "seen_in": [
+      "FactorioLab",
+      "FICSIT Planner",
+      "SatisfactoryMCP",
+      "dsp-calc-opt"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. SatisfactoryMCP reports 'infeasible instead of overstated' when byproducts would be stranded; dsp-calc-opt falls back to the last good recipe set on failure. Users of SatisfactoryTools report silent nonsense instead (issue: calculator 'create diamonds for no reason', 2026-05)."
+  },
+  {
+    "id": "F-014",
+    "name": "Byproduct handling",
+    "category": "Solver",
+    "description": "Account for secondary outputs: feed them back in, route them to a sink, package them, or flag them as unhandled (which would back up and stop machines in game).",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Alchemy Factory Calculator",
+      "Factory Manager",
+      "SatisfactoryMCP",
+      "FactorioLab",
+      "SatisfactoryTools"
+    ],
+    "data_supported": "yes — products lists include byproducts; sink points per item in Docs",
+    "notes": "observed. Satisfactory Factories warns 'byproduct nothing consumes will back up'; Factory Manager adds optional disposal lines; SatisfactoryTools has 'sinkable resources'. Heavy Oil Residue / waste chains are where tools are reported wrong (SatisfactoryTools and SCIM planner issues)."
+  },
+  {
+    "id": "F-015",
+    "name": "Recipe loops and recursive recipes",
+    "category": "Solver",
+    "description": "Correctly solve chains where an item is (directly or indirectly) an ingredient of itself — recycled rubber/plastic, fuel loops, self-fertilising farms.",
+    "seen_in": [
+      "YAFC-CE",
+      "Factory Planner (Factorio)",
+      "FactorioLab",
+      "Alchemy Factory Calculator"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. YAFC exists because Helmod broke on recursive Pyanodon recipes; FactorioLab 'net production only'. SatisfactoryTools has an open issue about the rubber/plastic loop (2024-12)."
+  },
+  {
+    "id": "F-016",
+    "name": "Whole-machine counts and clock spreading",
+    "category": "Solver",
+    "description": "Turn fractional machine counts into buildable whole numbers with a clock speed (e.g. 3 machines at 83.3%), or spread a group so every machine runs identically.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Factories",
+      "Satisfactory Modeler",
+      "dsp-calc-opt",
+      "Factory Manager",
+      "SatisfactoryTools"
+    ],
+    "data_supported": "yes — clock bounds (mMinPotential/mMaxPotential) in Docs",
+    "notes": "observed. Satisfactory Factories 'Spread' (fewest buildings, underclocked evenly); dsp-calc-opt mixes machine tiers to reach even counts; Modeler 'automatic clock speed' (2025-08). SatisfactoryTools prints 'N x at Y%' with only the last machine underclocked (RecipeResult.ts)."
+  },
+  {
+    "id": "F-017",
+    "name": "Pause or manual recalculation",
+    "category": "Solver",
+    "description": "Stop automatic recomputation while editing a large plan and recompute on demand.",
+    "seen_in": [
+      "FactorioLab",
+      "Satisfactory Modeler",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Exists because large graphs freeze — Modeler's top complaint is performance on big builds (reported)."
+  },
+  {
+    "id": "F-018",
+    "name": "Undo / redo",
+    "category": "UI",
+    "description": "Step back and forward through edits to a plan.",
+    "seen_in": [
+      "YAFC-CE",
+      "Satisfactory Architect"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed for YAFC; inferred for Satisfactory Architect (StateHistory.svelte.ts). Satisfactory Factories offers browser back/forward for navigation jumps, not edit undo."
+  },
+  {
+    "id": "F-019",
+    "name": "Alternate recipe toggles",
+    "category": "Recipes",
+    "description": "Enable or disable each alternate (and standard) recipe so the planner may or may not use it.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "SCIM (satisfactory-calculator.com)",
+      "Kirk McDonald Satisfactory Calculator",
+      "FactorioLab",
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "Satisfactory Solver",
+      "SatisfactoryBase",
+      "Factory Manager",
+      "Satisfactory Modeler"
+    ],
+    "data_supported": "yes — 110 Recipe_Alternate classes; 109 EST_Alternate schematics link them",
+    "notes": "observed (SCIM reported via search snippet; Modeler reported). Table stakes. SatisfactoryTools users ask to 'permanently mark unlocked alts' (open, 2025-03)."
+  },
+  {
+    "id": "F-020",
+    "name": "Converter recipe switch",
+    "category": "Recipes",
+    "description": "Exclude or include the Converter's resource-transmutation recipes as a group (they make almost anything from SAM and distort optimal plans).",
+    "seen_in": [
+      "Satisfactory Logistics",
+      "FICSIT Planner"
+    ],
+    "data_supported": "yes — 25 recipes produced in Build_Converter",
+    "notes": "observed. SatisfactoryTools has an open request to disable them by default (2024-10)."
+  },
+  {
+    "id": "F-021",
+    "name": "Progression gating (tier / research)",
+    "category": "Recipes",
+    "description": "Pick your unlocked tier or research and hide recipes, buildings, belts and miners you cannot have yet.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "FactorioLab",
+      "YAFC-CE"
+    ],
+    "data_supported": "yes — FGSchematic mTechTier, mUnlocks, mSchematicDependencies (574 schematics)",
+    "notes": "observed. FactorioLab 'technologies researched' with import; YAFC 'milestones'; Satisfactory Logistics 'building restrictions'. SatisfactoryTools request to filter by HUB tier is open (2025-09)."
+  },
+  {
+    "id": "F-022",
+    "name": "Unlocked recipes read from a save",
+    "category": "Recipes",
+    "description": "Read which alternates and milestones you actually own from your save file and restrict the planner to them.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "partial — needs a save parser; Docs maps schematics to recipes",
+    "notes": "observed. Requested on SatisfactoryTools since 2021-03 (open, 10 comments) and on SCIM planner (2022, closed — outcome not verified)."
+  },
+  {
+    "id": "F-023",
+    "name": "Alternate recipe comparison",
+    "category": "Recipes",
+    "description": "Compare the ways of making an item side by side (raw cost, power, buildings) to decide which alternate is better.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfactory Solver",
+      "YAFC-CE",
+      "FactorioLab"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. Kirk's request 'alternate recipes best in categories' open since 2020. YAFC's 'Never Enough Items' shows which option it considers optimal."
+  },
+  {
+    "id": "F-024",
+    "name": "Hard drive research advisor",
+    "category": "Recipes",
+    "description": "Given the alternates offered by a pending hard drive, recommend which to pick for your goals.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "partial — alternates are in Docs; the offered choices live in the save",
+    "notes": "observed for SatisfactoryMCP (advise_hard_drive_pick); reported for SCIM, where only the homepage label 'hard drive optimizer' was seen and its function was not verified. Unusual."
+  },
+  {
+    "id": "F-025",
+    "name": "Recipe swap from the graph or row",
+    "category": "Recipes",
+    "description": "Click a machine or row and switch it to another recipe for the same product without leaving the view.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Ficsit Companion",
+      "Alchemy Factory Calculator",
+      "Foreman2"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. Open request on SatisfactoryTools (2026-05)."
+  },
+  {
+    "id": "F-026",
+    "name": "Game-mode multipliers (1.2)",
+    "category": "Recipes",
+    "description": "Apply 1.2 game-mode settings: recipe parts cost multiplier, power consumption multiplier, Space Elevator deliverable cost multiplier.",
+    "seen_in": [
+      "FactorioLab",
+      "Satisfactory Logistics",
+      "Satisfactory Modeler",
+      "FICSIT Planner",
+      "Ficsit Companion"
+    ],
+    "data_supported": "partial — fields exist (FGGameState.h mPartsCostMultiplier, mEnergyCostMultiplier, mSpacePartsCostMultiplier) but which recipes are exempt (packagers, generators, diluted fuel) is community knowledge",
+    "notes": "observed. FactorioLab needed follow-up fixes for exemptions (2026-08-16 generators, 2026-09-17 diluted packaged fuel). Kirk issue open (2026-04). New since June 2026, so a freshness test for any tool."
+  },
+  {
+    "id": "F-027",
+    "name": "Seasonal content toggle",
+    "category": "Recipes",
+    "description": "Include or hide event-only (FICSMAS) items and recipes.",
+    "seen_in": [
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "yes — 42 classes tagged mRelevantEvents (EV_Christmas)",
+    "notes": "observed. Kirk issue 'Ficmas Recipes' open (2024-12)."
+  },
+  {
+    "id": "F-028",
+    "name": "Mod content support",
+    "category": "Recipes",
+    "description": "Plan with recipes and buildings added by mods, not only vanilla.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "Satisfactory Modeler",
+      "FactorioLab",
+      "YAFC-CE",
+      "Foreman2",
+      "Helmod",
+      "Factory Planner (Factorio)"
+    ],
+    "data_supported": "no — CommunityResources is vanilla only; mods need their own data (ContentLib JSON etc.)",
+    "notes": "observed (SCIM '93 mods'; Modeler 'mod support via file editing' reported). For Factorio it is the main reason YAFC/Foreman/Helmod exist."
+  },
+  {
+    "id": "F-029",
+    "name": "User-editable recipe database",
+    "category": "Data",
+    "description": "Edit or add items and recipes in the tool itself (stored locally) to fix data errors or add content.",
+    "seen_in": [
+      "Alchemy Factory Calculator",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. For Alchemy Factory it is a necessity: no official data dump, recipes are hand-transcribed. FactorioLab has a full game-data editor."
+  },
+  {
+    "id": "F-030",
+    "name": "Game version switcher",
+    "category": "Data",
+    "description": "Choose which game version's data the plan uses (e.g. 1.0 vs 1.2, experimental vs stable).",
+    "seen_in": [
+      "SatisfactoryTools",
+      "FactorioLab",
+      "Foreman2"
+    ],
+    "data_supported": "partial — we hold one Docs snapshot (1.2); older versions would need archived dumps",
+    "notes": "observed. Foreman2 can diff two presets to show what an update changed. SatisfactoryTools users ask for 1.0 not 0.8 as default (2025-11)."
+  },
+  {
+    "id": "F-031",
+    "name": "Overclock / underclock per machine",
+    "category": "Production modifiers",
+    "description": "Set a machine's clock speed (1–250%) and get the scaled rate and the game's non-linear power draw.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Factory Manager",
+      "Satisfactory Logistics",
+      "Ficsit Companion",
+      "Satisfactory Modeler",
+      "SatisfactoryBase",
+      "Satisfactory Factories",
+      "Kirk McDonald Satisfactory Calculator",
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "yes — mPowerConsumptionExponent (1.321929 for manufacturers), mMinPotential/mMaxPotential",
+    "notes": "observed (Kirk: per-recipe overclock in factory.js/display.js, so its 2019 issues are stale; SCIM power planner reported). SatisfactoryTools: codex views apply an overclock slider, but the production planner does not let you set clocks and its power total says 'TODO handle overclocking' (ProductionToolResult.ts:67). The planner request has been open since 2022."
+  },
+  {
+    "id": "F-032",
+    "name": "Power shard count and budget",
+    "category": "Production modifiers",
+    "description": "Count the power shards a plan needs and optionally plan within a shard budget (prefer 100% clocks).",
+    "seen_in": [
+      "FICSIT Planner",
+      "Factory Manager",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes — mPotentialShardSlots and potential bounds on each building",
+    "notes": "observed. Kirk: a request has been open since 2019, but absence was not verified in source."
+  },
+  {
+    "id": "F-033",
+    "name": "Somersloop production amplification",
+    "category": "Production modifiers",
+    "description": "Model somersloops in a machine: up to double output, with power scaling by the square of the boost.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "Factory Manager",
+      "Ficsit Companion",
+      "Satisfactory Factories",
+      "SatisfactoryMCP",
+      "Kirk McDonald Satisfactory Calculator"
+    ],
+    "data_supported": "yes — mProductionShardSlotSize, mProductionShardBoostMultiplier, mProductionBoostPowerConsumptionExponent=2",
+    "notes": "observed (Kirk: maxSomersloop in building.js, used by solve.js). The most-requested missing feature on SatisfactoryTools: three open issues 2024–2026, and grep for 'somersloop' over its 157 source files found nothing (control: the same grep found 'overclock'). Satisfactory Logistics shipped a per-machine display fix in v0.10."
+  },
+  {
+    "id": "F-034",
+    "name": "Auto-place a limited somersloop supply",
+    "category": "Production modifiers",
+    "description": "Enter how many somersloops you own and let the planner place them where they save the most.",
+    "seen_in": [
+      "FICSIT Planner"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (README claim). Open request on SatisfactoryTools (2025-07, 'with best-recipe selection')."
+  },
+  {
+    "id": "F-035",
+    "name": "Research and upgrade levels",
+    "category": "Production modifiers",
+    "description": "Account for researched bonuses that change rates (belt speed, machine efficiency, mining productivity, upload rate).",
+    "seen_in": [
+      "Alchemy Factory Calculator",
+      "FactorioLab",
+      "Factory Planner (Factorio)",
+      "dsp-calc-opt",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "partial — Satisfactory has few such bonuses; Depot upload research is in MAM schematics",
+    "notes": "observed. Mostly a non-Satisfactory need (Alchemy Factory belt/efficiency tiers; Factorio mining productivity). Satisfactory Factories models the Dimensional Depot MAM upload tiers."
+  },
+  {
+    "id": "F-036",
+    "name": "Modules, beacons, proliferators, quality",
+    "category": "Multi-game",
+    "description": "Game-specific machine modifiers (Factorio modules, beacons and quality; DSP proliferator), with presets and auto-allocation.",
+    "seen_in": [
+      "FactorioLab",
+      "Helmod",
+      "Factory Planner (Factorio)",
+      "YAFC-CE",
+      "Foreman2",
+      "dsp-calc-opt",
+      "Kirk McDonald Factorio Calculator"
+    ],
+    "data_supported": "n-a — no Satisfactory equivalent beyond shards/sloops",
+    "notes": "observed. Relevant only if the multi-game ambition includes Factorio or DSP. YAFC 'auto modules' and dsp-calc-opt proliferator optimisation are the advanced forms."
+  },
+  {
+    "id": "F-037",
+    "name": "Plan power total",
+    "category": "Power",
+    "description": "Total power a plan consumes, as average and as peak.",
+    "seen_in": [
+      "Kirk McDonald Satisfactory Calculator",
+      "FactorioLab",
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "Factory Manager",
+      "Satisfactory Factories",
+      "Satisfactory Modeler",
+      "SatisfactoryBase"
+    ],
+    "data_supported": "yes — mPowerConsumption per building",
+    "notes": "observed. Kirk shows both average and peak."
+  },
+  {
+    "id": "F-038",
+    "name": "Variable-power machines",
+    "category": "Power",
+    "description": "Handle machines whose draw cycles (Particle Accelerator, Converter, Quantum Encoder) as min/max/average instead of a constant.",
+    "seen_in": [
+      "Kirk McDonald Satisfactory Calculator"
+    ],
+    "data_supported": "yes — mEstimatedMininumPowerConsumption / mEstimatedMaximumPowerConsumption (FGBuildableManufacturerVariablePower)",
+    "notes": "inferred (Kirk's average-vs-peak split is the visible sign; others not checked). Note the game's own typo 'Mininum' in the field name."
+  },
+  {
+    "id": "F-039",
+    "name": "Power plant planner",
+    "category": "Power",
+    "description": "Size generators from a MW target or from available fuel, including the fuel chain, water and waste (nuclear).",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "FICSIT Planner",
+      "Factory Manager",
+      "Satisfactory Factories",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "yes — FGBuildableGeneratorFuel mFuel (fuel, supplemental water ratio, byproduct), mPowerProduction",
+    "notes": "observed (SCIM reported). Kirk: its data lists no fuel generators, only the Nuclear Power Plant (inferred: no power-plant planner). Fuel amounts for fluids are x1000 in Docs. Nuclear waste is where tools break: SatisfactoryTools 'plutonium fuel rod error' open since 2022."
+  },
+  {
+    "id": "F-040",
+    "name": "Self-powered factory",
+    "category": "Power",
+    "description": "Fold the generators and fuel needed to power a plan into the plan itself, so power reduces to raw resources.",
+    "seen_in": [
+      "YAFC-CE",
+      "Alchemy Factory Calculator",
+      "dsp-calc-opt",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. Satisfactory Factories 'match generator draw to fuel supply' (Expand/Trim to supply)."
+  },
+  {
+    "id": "F-041",
+    "name": "Power balance per factory or group",
+    "category": "Power",
+    "description": "Show generated vs consumed vs balance per factory, per group and per plan, with deficit warnings.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Factory Manager",
+      "Satisfactory Logistics Map",
+      "FRM Companion Bundle"
+    ],
+    "data_supported": "yes for planned; no for live (needs save or FRM)",
+    "notes": "observed."
+  },
+  {
+    "id": "F-042",
+    "name": "Power augmenter boost",
+    "category": "Power",
+    "description": "Model the Alien Power Augmenter's grid-wide percentage boost.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes — FGBuildablePowerBooster mBaseBoostPercentage 0.1, mBasePowerProduction 500",
+    "notes": "observed. Niche; Satisfactory Factories notes the boost applies to the whole plan's grid."
+  },
+  {
+    "id": "F-043",
+    "name": "Extractor sizing by mark, purity and clock",
+    "category": "Extraction",
+    "description": "Compute how many miners/pumps/extractors a raw demand needs, given miner mark, node purity and clock speed.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Factories",
+      "Satisfactory Modeler",
+      "Factory Manager",
+      "SatisfactoryTools",
+      "Kirk McDonald Satisfactory Calculator"
+    ],
+    "data_supported": "partial — base extractor rates in Docs (fluid extractors x1000: water pump 2000/cycle = 120 m³/min); purity multipliers (0.5/1/2) are hardcoded in every tool (only the enum is in FGResourceNode.h)",
+    "notes": "observed. SatisfactoryTools hardcodes RESOURCE_MULTIPLIER_IMPURE=0.5 etc. in Constants.ts. Water extractors are a frequent omission (SatisfactoryTools issue open 2021)."
+  },
+  {
+    "id": "F-044",
+    "name": "Node inventory input",
+    "category": "Extraction",
+    "description": "Enter the nodes you actually have (e.g. one pure, one impure) and get miners per node, or what would close a shortfall per purity.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a — user input",
+    "notes": "observed."
+  },
+  {
+    "id": "F-045",
+    "name": "Resource well planning",
+    "category": "Extraction",
+    "description": "Plan Resource Well Pressurizers with satellite extractors of mixed purity for water, oil and nitrogen.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes — FGBuildableFrackingExtractor and FGBuildableFrackingActivator in Docs",
+    "notes": "observed. Satisfactory Factories deliberately won't auto-size wells because rate comes from satellites."
+  },
+  {
+    "id": "F-046",
+    "name": "Raw resources must be sourced",
+    "category": "Extraction",
+    "description": "Treat raw resources like any other input that must be explicitly mined or imported, instead of assuming unlimited free supply.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a — modelling choice",
+    "notes": "observed. A breaking change in Satisfactory Factories v0.6, with a wizard to migrate plans. A definitional choice worth deciding early: most LP tools assume free raw supply up to a cap."
+  },
+  {
+    "id": "F-047",
+    "name": "Hand-gathered items",
+    "category": "Extraction",
+    "description": "Recognise items no extractor can produce (leaves, wood, mycelia, alien remains, slugs) and treat them as gathered.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "YAFC-CE"
+    ],
+    "data_supported": "yes — derivable: items with no recipe and no allowed extractor",
+    "notes": "observed. YAFC's 'automation analysis' is the general form ('cannot be fully automated')."
+  },
+  {
+    "id": "F-048",
+    "name": "Belt and pipe sizing",
+    "category": "Logistics",
+    "description": "For each flow, show how many belts or pipes of which tier it needs, and split a flow that exceeds one belt.",
+    "seen_in": [
+      "FactorioLab",
+      "FICSIT Planner",
+      "Factory Manager",
+      "Kirk McDonald Satisfactory Calculator",
+      "SatisfactoryBase",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes with conversion — belt mSpeed/2 = items/min (Mk1 120→60 … Mk6 2400→1200); pipe mFlowLimit×60 = m³/min (5→300, 10→600)",
+    "notes": "observed. Factory Manager caps the highest Mk you have unlocked."
+  },
+  {
+    "id": "F-049",
+    "name": "Splitter and balancer design",
+    "category": "Logistics",
+    "description": "Given a flow and a desired split, produce the splitter/merger arrangement (manifold, balancer or compressor).",
+    "seen_in": [
+      "Splitter Calculator",
+      "Satisfactory Balancer Calculator",
+      "SCIM (satisfactory-calculator.com)",
+      "Satisfactory Logistics",
+      "SatisfactoryBase",
+      "Factory Manager"
+    ],
+    "data_supported": "n-a — pure arithmetic",
+    "notes": "observed (Balancer Calculator reported). SCIM publishes a balancer design library; Satisfactory Logistics added a splitter calculator in v0.11; Factory Manager splits steps into manifold banks."
+  },
+  {
+    "id": "F-050",
+    "name": "Manifold fill time",
+    "category": "Logistics",
+    "description": "Estimate how long a manifold takes to saturate all machines after start-up.",
+    "seen_in": [
+      "Machine Fill"
+    ],
+    "data_supported": "partial — needs machine buffer sizes and belt speed",
+    "notes": "reported (wiki listing; stale, Update 2 only). Unusual."
+  },
+  {
+    "id": "F-051",
+    "name": "Transport capacity planning",
+    "category": "Logistics",
+    "description": "For an inter-factory route, pick trains, trucks, drones or fluid trucks, enter distance or times, and get vehicles, wagons and stations needed.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Factory Manager",
+      "SatisfactoryBase",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "partial — vehicles, platforms and their timings are in Docs; travel speeds and round trips need distance and physics assumptions",
+    "notes": "observed (Satisfactory Logistics 'Transport & Logistics graph' reported). Missing from Modeler (reported, vaporlens). SatisfactoryBase updates route capacity as you move waypoints."
+  },
+  {
+    "id": "F-052",
+    "name": "Factory-to-factory import/export ledger",
+    "category": "Logistics",
+    "description": "Track what each factory sends to and receives from every other factory, and whether the supplier can actually cover it.",
+    "seen_in": [
+      "Satisfactory Logistics",
+      "Satisfactory Factories",
+      "FICSIT Planner",
+      "Factory Manager"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Satisfactory Factories offers 'Trim to capacity'. Satisfactory Logistics was built around this ('logistics tracking')."
+  },
+  {
+    "id": "F-053",
+    "name": "Multiple factories per plan",
+    "category": "Factory network",
+    "description": "Hold many factories (tabs or cards) in one plan or workspace instead of a single production target.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "FICSIT Planner",
+      "SatisfactoryTools",
+      "Factory Manager",
+      "FactorioLab",
+      "YAFC-CE",
+      "Satisfactory Architect"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. FactorioLab does it by saved states, not a linked network."
+  },
+  {
+    "id": "F-054",
+    "name": "Nested sub-plans",
+    "category": "Factory network",
+    "description": "A recipe or block can contain its own sub-plan (subfloor, nested table, outpost, blueprint) that collapses to a summary.",
+    "seen_in": [
+      "Factory Planner (Factorio)",
+      "YAFC-CE",
+      "Satisfactory Modeler",
+      "Helmod"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. A different structure from a network of sibling factories; Factory Planner nests infinitely. On the Alchemy calc roadmap ('modules')."
+  },
+  {
+    "id": "F-055",
+    "name": "Factory groups with rollups",
+    "category": "Factory network",
+    "description": "Group factories into coloured folders whose headers summarise what the group delivers, its power and its problems.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-056",
+    "name": "Spin off a sub-chain",
+    "category": "Factory network",
+    "description": "From a shortage or an item row, create a new factory or window that plans just that item, linked back as an import.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "dsp-calc-opt"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-057",
+    "name": "Plan statistics and building summary",
+    "category": "Factory network",
+    "description": "Plan-wide totals: raw resources, every item's production vs consumption, building counts by type, shards and sloops used.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "FactorioLab",
+      "Satisfactory Modeler",
+      "Factory Manager"
+    ],
+    "data_supported": "yes",
+    "notes": "observed."
+  },
+  {
+    "id": "F-058",
+    "name": "Construction bill of materials",
+    "category": "Factory network",
+    "description": "Parts needed to build all the machines and generators in a plan.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Alchemy Factory Calculator",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "yes — 549 build-gun recipes (BP_BuildGun) give building costs",
+    "notes": "observed. Satisfactory Factories excludes belts and foundations and labels the figure a guide."
+  },
+  {
+    "id": "F-059",
+    "name": "Plan health warnings",
+    "category": "Factory network",
+    "description": "Severity-coded warnings: shortage, unmet export, overproduction/backlog, unhandled byproduct, out of sync with game, redundant import.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Foreman2 colours nodes (red unachievable, gold overproducing, orange error) and offers click-to-auto-resolve."
+  },
+  {
+    "id": "F-060",
+    "name": "Space Elevator phase targets",
+    "category": "Factory network",
+    "description": "Use Space Elevator phase deliverables as plan targets or show what remains for a phase.",
+    "seen_in": [
+      "Satisfactory Modeler",
+      "SatisfactoryMCP",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "partial — milestone costs (mCost) are in Docs; 'Project Assembly' phase data present but its structure not verified",
+    "notes": "observed. Interacts with the 1.2 Space Elevator cost multiplier."
+  },
+  {
+    "id": "F-061",
+    "name": "Non-producing buildings in plan",
+    "category": "Factory network",
+    "description": "Add buildings that make nothing (portals, stations, radar, AWESOME Sink) so their power and consumption (e.g. portal Singularity Cells) count.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "yes",
+    "notes": "observed."
+  },
+  {
+    "id": "F-062",
+    "name": "AWESOME Sink planning",
+    "category": "Factory network",
+    "description": "Route surpluses to sinks and count sink points per minute; sinks draw power.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "SatisfactoryTools",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "yes — mResourceSinkPoints per item",
+    "notes": "observed. Sink points are also the natural 'profit' metric if mirroring Alchemy Factory's profit view."
+  },
+  {
+    "id": "F-063",
+    "name": "Dimensional Depot uploads",
+    "category": "Factory network",
+    "description": "Model uploads to the Dimensional Depot as a destination, with the MAM-researched upload rate.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "partial — FGCentralStorageContainer present (mTimeToUpload); rate tiers come from MAM research",
+    "notes": "observed. SCIM's Depot support (2026-08 commits) edits Depot values in a save; that is save editing, not planning, so it is not listed here."
+  },
+  {
+    "id": "F-064",
+    "name": "Storage buffers in model",
+    "category": "Factory network",
+    "description": "Model storage containers or fluid buffers as nodes with a fill state that can supply or absorb flow.",
+    "seen_in": [
+      "Satisfactory Modeler"
+    ],
+    "data_supported": "yes — FGBuildableStorage",
+    "notes": "observed."
+  },
+  {
+    "id": "F-065",
+    "name": "Build checklist",
+    "category": "Workflow",
+    "description": "Tick off steps, machines or imports as built in-game, and see when the plan changed after you ticked.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Satisfactory Factories flags 'desynced' ticks when the number moved. The 'done state on visualisation' is SatisfactoryTools' second-most-discussed open request (2024-10, 2026-03)."
+  },
+  {
+    "id": "F-066",
+    "name": "Kanban build status",
+    "category": "Workflow",
+    "description": "Give each factory a status (Draft, Todo, In Progress, Done) and view the megabase on a drag-and-drop board.",
+    "seen_in": [
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (v0.10). Paired with 'disabled factory' archiving."
+  },
+  {
+    "id": "F-067",
+    "name": "Notes and tasks per factory",
+    "category": "Workflow",
+    "description": "Free-text notes and a task list attached to a factory.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. SCIM's save editor has a Map/Todo modal (inferred from file name), but whether it is per factory is unknown, so it is not listed here. Requested on Modeler's forum ('Notes and Checklists')."
+  },
+  {
+    "id": "F-068",
+    "name": "Plan vs save diff",
+    "category": "Workflow",
+    "description": "Compare a plan with what is actually built in the save: what is missing, what is extra.",
+    "seen_in": [
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "partial — needs a save parser",
+    "notes": "observed (diff_vs_save, commission_plan). Unique in this survey."
+  },
+  {
+    "id": "F-069",
+    "name": "Flow graph with auto layout",
+    "category": "Visualisation",
+    "description": "Show the plan as nodes (machines or recipes) and edges (item flows) laid out automatically.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "FactorioLab",
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "Factory Manager",
+      "Satisfactory Factories",
+      "Satisfactory Architect",
+      "Ferrumium",
+      "SatisGraphtory"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (Satisfactory Architect inferred; SatisGraphtory reported, stale since 2023). SatisfactoryTools and FactorioLab use ELK; Satisfactory Logistics offers orthogonal edges and animated flow dots."
+  },
+  {
+    "id": "F-070",
+    "name": "Sankey diagram",
+    "category": "Visualisation",
+    "description": "Show flows as a Sankey diagram, with band width proportional to rate.",
+    "seen_in": [
+      "Kirk McDonald Satisfactory Calculator",
+      "Kirk McDonald Factorio Calculator",
+      "FactorioLab",
+      "Sankey Factory",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (Sankey Factory reported). Kirk added Sankey alignment as a 2026 issue request."
+  },
+  {
+    "id": "F-071",
+    "name": "Configurable step table",
+    "category": "Visualisation",
+    "description": "A table of steps with selectable columns (machines, belts, power, inserters, wagons, links), sortable and with precision control.",
+    "seen_in": [
+      "FactorioLab",
+      "Kirk McDonald Satisfactory Calculator",
+      "SatisfactoryTools",
+      "FICSIT Planner",
+      "Alchemy Factory Calculator"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-072",
+    "name": "Tree view of the chain",
+    "category": "Visualisation",
+    "description": "Show the chain as a collapsible hierarchy from target to raw resources.",
+    "seen_in": [
+      "FactorioLab",
+      "Factory Manager",
+      "Factory Planner (Factorio)"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Kirk's 'Add tree view' request has been open since 2019 (absence not verified in source)."
+  },
+  {
+    "id": "F-073",
+    "name": "Edit from the graph",
+    "category": "Visualisation",
+    "description": "Change recipe, clock, count or sloops by selecting a node in the graph.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Ficsit Companion",
+      "Satisfactory Modeler",
+      "Foreman2",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-074",
+    "name": "Persisted manual layout",
+    "category": "Visualisation",
+    "description": "Node positions you drag are kept across sessions, recalculations and view switches.",
+    "seen_in": [
+      "Factory Manager",
+      "Satisfactory Modeler",
+      "Ficsit Companion",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. SatisfactoryTools issue (2020-11, open): manual positioning and zoom lost on tab switch."
+  },
+  {
+    "id": "F-075",
+    "name": "Graph image export",
+    "category": "Visualisation",
+    "description": "Export the graph as an image (PNG/SVG) for sharing outside the tool.",
+    "seen_in": [
+      "Factory Manager",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. On Ficsit Companion's wishlist; SCIM request to export the minimap view (2022, open)."
+  },
+  {
+    "id": "F-076",
+    "name": "Display units and number format",
+    "category": "UI",
+    "description": "Choose per-second, per-minute or per-hour, and decimal precision or exact rationals.",
+    "seen_in": [
+      "Kirk McDonald Satisfactory Calculator",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Kirk can show exact rationals."
+  },
+  {
+    "id": "F-077",
+    "name": "Command palette and search",
+    "category": "UI",
+    "description": "Global search (Cmd+K) across game data and your own factories, jumping to the matching row.",
+    "seen_in": [
+      "Satisfactory Logistics",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-078",
+    "name": "Localisation",
+    "category": "UI",
+    "description": "UI strings and item, building and recipe names in many languages.",
+    "seen_in": [
+      "FactorioLab",
+      "Satisfactory Modeler",
+      "Factory Manager",
+      "satisfactoryplanner.net",
+      "SCIM (satisfactory-calculator.com)",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "yes — 55 locale files. Iron Plate is translated in 44 of the 54 parsed; en-*, af, et, hi, lb and vun carry English. io.json is UTF-8 while the rest are UTF-16LE, a trap for ingest.",
+    "notes": "observed (planner.net reported). Modeler covers 30 languages; Factory Manager borrows SCIM catalogues. Free with our data."
+  },
+  {
+    "id": "F-079",
+    "name": "Themes and display settings",
+    "category": "UI",
+    "description": "Dark/light/system theme, hue, card and text size, interface scale.",
+    "seen_in": [
+      "FactorioLab",
+      "FICSIT Planner"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. No surveyed calculator advertises accessibility work (colour-blind palettes, keyboard-only use, screen readers). Only a colour-code helper on the wiki list does."
+  },
+  {
+    "id": "F-080",
+    "name": "Keyboard shortcuts",
+    "category": "UI",
+    "description": "Keyboard control for adding, linking, moving and deleting nodes.",
+    "seen_in": [
+      "Ferrumium",
+      "YAFC-CE",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-081",
+    "name": "Guided tutorial and demo plans",
+    "category": "UI",
+    "description": "An interactive tutorial and/or prebuilt example plans that show the tool's features.",
+    "seen_in": [
+      "Satisfactory Logistics",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Steep learning curve is Modeler's #1 complaint (reported, vaporlens)."
+  },
+  {
+    "id": "F-082",
+    "name": "In-app feedback with plan attached",
+    "category": "UI",
+    "description": "Send a bug report or idea from inside the app, optionally attaching the plan on screen.",
+    "seen_in": [
+      "FICSIT Planner"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (README claim)."
+  },
+  {
+    "id": "F-083",
+    "name": "New-version notice",
+    "category": "UI",
+    "description": "Tell an open tab that a new version is live and offer a reload; refuse saves from a stale client.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Satisfactory Factories' API rejects writes from out-of-date clients so an old tab cannot overwrite a newer plan."
+  },
+  {
+    "id": "F-084",
+    "name": "Installable offline app (PWA)",
+    "category": "Platform",
+    "description": "Install as an app and run without network once cached (solver, icons and data included).",
+    "seen_in": [
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "Satisfactory Hub",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (Satisfactory Hub reported)."
+  },
+  {
+    "id": "F-085",
+    "name": "Phone-friendly layout",
+    "category": "Platform",
+    "description": "A layout designed for phones (one pane at a time, bottom bar), not just a shrunken desktop.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Sankey Factory",
+      "Satisfactory Hub",
+      "Satisfactory Toolbox (Android)"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed for FICSIT Planner; others reported. A mobile version is requested on Modeler's forum."
+  },
+  {
+    "id": "F-086",
+    "name": "Native desktop app",
+    "category": "Platform",
+    "description": "Downloadable desktop application with local files instead of a website.",
+    "seen_in": [
+      "Satisfactory Modeler",
+      "Ficsit Companion",
+      "Factory Manager",
+      "YAFC-CE",
+      "Foreman2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Modeler adds Steam Cloud sync; reviewers prefer it to ad-supported web tools (reported)."
+  },
+  {
+    "id": "F-087",
+    "name": "Kiosk / second-screen mode",
+    "category": "Platform",
+    "description": "A view that rotates through dashboards or follows a player, meant for a side monitor.",
+    "seen_in": [
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-088",
+    "name": "Codex / database browser",
+    "category": "Data",
+    "description": "Browse items, recipes, buildings, generators, schematics with their stats and descriptions.",
+    "seen_in": [
+      "SatisfactoryTools",
+      "SCIM (satisfactory-calculator.com)",
+      "FICSIT Planner",
+      "Satisfactory Logistics",
+      "SatisfactoryBase",
+      "FactorioLab",
+      "Alchemy Factory Codex"
+    ],
+    "data_supported": "yes — Docs carries display names, descriptions and stats",
+    "notes": "observed (Alchemy Factory Codex reported)."
+  },
+  {
+    "id": "F-089",
+    "name": "Recipe usage lookup",
+    "category": "Data",
+    "description": "For an item: every way to make it and everything it goes into.",
+    "seen_in": [
+      "YAFC-CE",
+      "FICSIT Planner",
+      "FactorioLab"
+    ],
+    "data_supported": "yes",
+    "notes": "observed. YAFC's 'Never Enough Items' also marks which option it would choose."
+  },
+  {
+    "id": "F-090",
+    "name": "Milestone / MAM / AWESOME Shop tracker",
+    "category": "Data",
+    "description": "Browse and tick off milestones, MAM research and AWESOME Shop unlocks with their costs.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "FICSIT Planner",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "yes — 574 FGSchematic typed EST_Milestone / EST_MAM / EST_ResourceSink / EST_Alternate",
+    "notes": "observed (SCIM homepage)."
+  },
+  {
+    "id": "F-091",
+    "name": "Dependency explorer",
+    "category": "Data",
+    "description": "Show what an object requires and what it unlocks, transitively.",
+    "seen_in": [
+      "YAFC-CE",
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "yes — mSchematicDependencies, mUnlocks",
+    "notes": "observed."
+  },
+  {
+    "id": "F-092",
+    "name": "Per-item cost analysis",
+    "category": "Data",
+    "description": "Give every item a cost (e.g. raw resources or logistic actions under optimal recipes) to rank recipes and items.",
+    "seen_in": [
+      "YAFC-CE",
+      "FactorioLab"
+    ],
+    "data_supported": "yes",
+    "notes": "observed (FactorioLab inferred from src/solver/item-values.ts)."
+  },
+  {
+    "id": "F-093",
+    "name": "Official data ingest pipeline",
+    "category": "Data",
+    "description": "Generate the tool's data directly from the game's own export (Docs JSON) so updates are mechanical, not hand-entered.",
+    "seen_in": [
+      "Satisfactory Solver",
+      "SatisfactoryMCP",
+      "SatisfactoryTools"
+    ],
+    "data_supported": "yes — this is exactly what CommunityResources Docs is",
+    "notes": "observed (Satisfactory Solver's earlier read_docs.py read Docs.json; SatisfactoryMCP reads a local install's dump). Contrast Alchemy Factory, where no dump exists."
+  },
+  {
+    "id": "F-094",
+    "name": "Game icon extraction",
+    "category": "Data",
+    "description": "Show real item and building icons, extracted from game assets.",
+    "seen_in": [
+      "Ficsit Companion",
+      "Satisfactory Architect",
+      "Satisfactory Factories",
+      "SatisfactoryTools"
+    ],
+    "data_supported": "partial — Docs has texture paths only (mSmallIcon); the shipped .usmap lets FModel/CUE4Parse extract them from a local install",
+    "notes": "observed. Whether extracted art can be redistributed in an open-source or commercial release is a decision for Peter, not a data question."
+  },
+  {
+    "id": "F-095",
+    "name": "Resource node map",
+    "category": "Map & world",
+    "description": "An interactive world map of resource nodes, wells and geysers, filterable by resource and purity.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "FICSIT Planner",
+      "SatisfactoryBase",
+      "Satisfactory Hub",
+      "Satisfactory World Seed Tool",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "no — node positions and purities are world data, not in Docs",
+    "notes": "observed (Hub reported). SCIM's data is licence-locked; others extract it from the map level or community sources."
+  },
+  {
+    "id": "F-096",
+    "name": "Collectibles map",
+    "category": "Map & world",
+    "description": "Map of power slugs, hard drives, somersloops, Mercer spheres and drop pods, optionally tracking collected ones.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "FICSIT Planner",
+      "FRM Companion Bundle",
+      "Satisfactory Toolbox (Android)"
+    ],
+    "data_supported": "no — world data",
+    "notes": "observed (Toolbox reported)."
+  },
+  {
+    "id": "F-097",
+    "name": "Build-site ranking",
+    "category": "Map & world",
+    "description": "Rank candidate sites for a factory by nearby nodes, or pick a build site for a plan.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "no — needs node positions",
+    "notes": "observed. Unusual."
+  },
+  {
+    "id": "F-098",
+    "name": "World seed viewer and finder (1.2)",
+    "category": "Map & world",
+    "description": "Show node layout for a 1.2 randomised world seed and search seeds for wanted resources at wanted nodes.",
+    "seen_in": [
+      "Satisfactory World Seed Tool",
+      "World Generator (konsl)",
+      "SatisfactoryBase"
+    ],
+    "data_supported": "no — the randomisation algorithm is not in CommunityResources",
+    "notes": "observed (konsl reported). Open request on SCIM (2026-03). New in June 2026 and only a few tools have it."
+  },
+  {
+    "id": "F-099",
+    "name": "Map measuring and annotations",
+    "category": "Map & world",
+    "description": "Measure distances, drop notes or markers, filter by altitude.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (SCIM altitude filter observed on page; markers inferred)."
+  },
+  {
+    "id": "F-100",
+    "name": "3D factory view",
+    "category": "Map & world",
+    "description": "Render a factory from the save in 3D or by floor.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "partial — needs save parsing and building meshes or footprints",
+    "notes": "observed."
+  },
+  {
+    "id": "F-101",
+    "name": "2D layout planner",
+    "category": "Layout",
+    "description": "Place building footprints on a grid (per floor) to design a factory's physical layout.",
+    "seen_in": [
+      "2D layout planners",
+      "Manifolder"
+    ],
+    "data_supported": "partial — mClearanceData gives building boxes (546 hits in Docs); port positions not verified",
+    "notes": "reported (wiki listing). The calculators surveyed do not do physical layout; this is a separate tool class."
+  },
+  {
+    "id": "F-102",
+    "name": "Generated layout or blueprint from a plan",
+    "category": "Layout",
+    "description": "Turn a solved plan into a physical layout or an importable in-game blueprint.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfactory Logistics Map",
+      "Save parser libraries"
+    ],
+    "data_supported": "partial — blueprint (.sbp) format via community parsers; footprints from mClearanceData",
+    "notes": "observed (SatisfactoryMCP plan_layout/site_plan; Logistics Map blueprint export 'experimental')."
+  },
+  {
+    "id": "F-103",
+    "name": "Save upload with map overlay",
+    "category": "Save files",
+    "description": "Load a save and draw its buildings, belts, pipes, rails and vehicles on the map.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "SatisfactoryBase",
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP",
+      "Statisfactory",
+      "Save parser libraries"
+    ],
+    "data_supported": "partial — headers and .usmap help, but the save format comes from community parsers (satisfactory-file-parser, MIT)",
+    "notes": "observed (Statisfactory reported)."
+  },
+  {
+    "id": "F-104",
+    "name": "Save statistics",
+    "category": "Save files",
+    "description": "Production and consumption per item, storage contents and game stats computed from a save.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "Statisfactory",
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP",
+      "Satisfactory in-game mods"
+    ],
+    "data_supported": "partial — needs save parser",
+    "notes": "observed (SCIM inferred from Statistics/Game|Production|Storage modals). In-game: Factory Statistics / Factory Analytics mods."
+  },
+  {
+    "id": "F-105",
+    "name": "Save editing",
+    "category": "Save files",
+    "description": "Modify a save and download it: move/copy/delete/rotate selections, recolour, unlock research, edit inventories, spawn miners.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "Save parser libraries"
+    ],
+    "data_supported": "partial — needs a save writer; the parsers listed are read and write",
+    "notes": "inferred from SCIM source names. A distinct product category with real corruption risk; SCIM forbids code reuse. Requests include mass-change clocks per recipe (open)."
+  },
+  {
+    "id": "F-106",
+    "name": "Auto-detect factories in a save",
+    "category": "Save files",
+    "description": "Cluster a save's machines into named factories (e.g. by belt connectivity).",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "partial — needs save parser",
+    "notes": "observed."
+  },
+  {
+    "id": "F-107",
+    "name": "Idle and starved machine detection",
+    "category": "Save files",
+    "description": "Find machines that are stopped, starved or blocked, with the reason, and show them as a heatmap.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP",
+      "FRM Companion Bundle",
+      "Satisfactory in-game mods"
+    ],
+    "data_supported": "partial — from save (snapshot) or FRM (live)",
+    "notes": "observed. In-game: Efficiency Checker mod."
+  },
+  {
+    "id": "F-108",
+    "name": "Upstream trace / bottleneck finder",
+    "category": "Save files",
+    "description": "From a product in your real factory, trace its supply chain upstream and find the thinnest link.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfactory in-game mods"
+    ],
+    "data_supported": "partial — needs save parser",
+    "notes": "observed (SatisfactoryMCP trace_upstream; Efficiency Checker in-game)."
+  },
+  {
+    "id": "F-109",
+    "name": "Power circuit analysis",
+    "category": "Save files",
+    "description": "List power circuits, their load and capacity, priority-switch break order, fuse-trip risk and unpowered machines.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "Satisfactory Logistics Map",
+      "Satisfactory in-game mods",
+      "FRM Companion Bundle"
+    ],
+    "data_supported": "partial — needs save parser or FRM",
+    "notes": "observed (SCIM inferred from Circuits/CircuitsBreakPriority modals; Power Checker mod)."
+  },
+  {
+    "id": "F-110",
+    "name": "Plan from save state",
+    "category": "Save files",
+    "description": "Plan new production using the surplus and unlocks that already exist in your save.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "partial — needs save parser",
+    "notes": "observed."
+  },
+  {
+    "id": "F-111",
+    "name": "Inventory and storage search",
+    "category": "Save files",
+    "description": "Find how much of an item you own and which container holds it.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "FRM Companion Bundle",
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "partial — needs save parser or FRM",
+    "notes": "observed (SCIM Storage statistics inferred)."
+  },
+  {
+    "id": "F-112",
+    "name": "Pull save from a dedicated server",
+    "category": "Server & live",
+    "description": "Fetch the latest save directly from a dedicated server (HTTPS API with admin password, or SFTP/FTP) instead of uploading by hand.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "yes — DedicatedServerAPIDocs: DownloadSaveGame, EnumerateSessions, PasswordLogin",
+    "notes": "observed. SCIM loads a remote URL only if the server has SSL and CORS. An admin credential is involved, so token handling and scope are a security design question."
+  },
+  {
+    "id": "F-113",
+    "name": "Server status and admin",
+    "category": "Server & live",
+    "description": "Show server state (players, tech tier, active milestone, game phase) and run admin actions (save, load, settings, restart).",
+    "seen_in": [
+      "Satisfactory Toolbox (Android)"
+    ],
+    "data_supported": "yes — QueryServerState, GetServerOptions, ApplyServerOptions, SaveGame, LoadGame, RunCommand, Shutdown; plus UDP Lightweight Query",
+    "notes": "reported (wiki listing). QueryServerState gives only tech tier and active milestone, not unlocked alternates. Mostly unoccupied territory among the calculators."
+  },
+  {
+    "id": "F-114",
+    "name": "Live factory telemetry",
+    "category": "Server & live",
+    "description": "Near-real-time production rates, power, trains, vehicles and player positions from a running game.",
+    "seen_in": [
+      "FicsIt Remote Monitoring",
+      "FRM Companion Bundle",
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "no — needs the FicsIt Remote Monitoring mod; the official server API does not expose production data",
+    "notes": "observed. Logistics Map works without the mod at autosave cadence (about 5 minutes) and with FRM at 5 seconds."
+  },
+  {
+    "id": "F-115",
+    "name": "Production history",
+    "category": "Server & live",
+    "description": "Store production and power over time (hours to months) and chart it.",
+    "seen_in": [
+      "Satisfactory Logistics Map",
+      "FRM Companion Bundle"
+    ],
+    "data_supported": "no — needs repeated save pulls or FRM",
+    "notes": "observed (SQLite; Prometheus/Postgres)."
+  },
+  {
+    "id": "F-116",
+    "name": "Alerts and notifications",
+    "category": "Server & live",
+    "description": "Push alerts (e.g. a Discord webhook) on fuse trips, low battery or shortages.",
+    "seen_in": [
+      "FRM Companion Bundle",
+      "FicsIt Remote Monitoring"
+    ],
+    "data_supported": "no — needs live data",
+    "notes": "observed."
+  },
+  {
+    "id": "F-117",
+    "name": "What changed since last visit",
+    "category": "Server & live",
+    "description": "An overview of what is stuck now and what happened since you last looked.",
+    "seen_in": [
+      "Satisfactory Logistics Map"
+    ],
+    "data_supported": "partial — diff of successive saves",
+    "notes": "observed."
+  },
+  {
+    "id": "F-118",
+    "name": "Programmatic API to plan data",
+    "category": "Sharing",
+    "description": "Expose plans or factory data to other programs (remote interface, HTTP API, MCP).",
+    "seen_in": [
+      "Factory Planner (Factorio)",
+      "Helmod",
+      "FicsIt Remote Monitoring",
+      "Satisfactory Logistics Map",
+      "SatisfactoryMCP"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Factorio mods expose Lua remote interfaces; SatisfactoryMCP exposes 49 MCP tools."
+  },
+  {
+    "id": "F-119",
+    "name": "Natural-language / LLM interface",
+    "category": "Sharing",
+    "description": "Ask questions or request plans in plain language and have a model call the planner.",
+    "seen_in": [
+      "SatisfactoryMCP",
+      "Satisfied Planner 2"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (SatisfactoryMCP); reported ('AI Architect' in Satisfied Planner 2)."
+  },
+  {
+    "id": "F-120",
+    "name": "In-game planner",
+    "category": "Platform",
+    "description": "The planner runs inside the game as a mod UI, with access to live unlock state.",
+    "seen_in": [
+      "Helmod",
+      "Factory Planner (Factorio)"
+    ],
+    "data_supported": "no — would need a Satisfactory mod (SML), outside CommunityResources",
+    "notes": "observed. No Satisfactory equivalent found (ficsit.app lookup returned none for the obvious references). Ficsit Companion lists it as an idea."
+  },
+  {
+    "id": "F-121",
+    "name": "In-game throughput instruments",
+    "category": "Platform",
+    "description": "Mod buildings or HUDs that measure actual belt throughput and machine efficiency in game.",
+    "seen_in": [
+      "Satisfactory in-game mods"
+    ],
+    "data_supported": "no — mod territory",
+    "notes": "observed (Throughput Counter, Efficiency Checker, Factory Analytics). Complements rather than competes with a calculator."
+  },
+  {
+    "id": "F-122",
+    "name": "URL-encoded sharing",
+    "category": "Sharing",
+    "description": "The entire plan is encoded into a link, with no server storage; opening the link reproduces it.",
+    "seen_in": [
+      "FactorioLab",
+      "Kirk McDonald Satisfactory Calculator",
+      "FICSIT Planner",
+      "Alchemy Factory Calculator",
+      "Kirk McDonald Factorio Calculator"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Zero hosting cost and privacy-preserving, but links get long (Alchemy calc plans bit-packing)."
+  },
+  {
+    "id": "F-123",
+    "name": "Server-hosted snapshot link",
+    "category": "Sharing",
+    "description": "Upload a frozen copy of the plan and get a short link; the copy does not change when you keep editing.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "SatisfactoryBase",
+      "Ferrumium"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Satisfactory Factories mints one link per plan version and keeps it separate from the live-invite link."
+  },
+  {
+    "id": "F-124",
+    "name": "Live collaborative editing",
+    "category": "Sharing",
+    "description": "Several people edit the same plan at once with changes synced live, presence shown and conflicts resolved.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "Ferrumium",
+      "SatisfactoryBase",
+      "Satisfactory Architect"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (Satisfactory Architect inferred from sync/ source). Satisfactory Factories: rooms by slug, optional password, per-field edit locks, guard against mass deletion."
+  },
+  {
+    "id": "F-125",
+    "name": "Shared-plan permissions",
+    "category": "Sharing",
+    "description": "Per-person rights on a shared plan (viewer vs editor; read/write/delete), with revocation.",
+    "seen_in": [
+      "Helmod",
+      "SatisfactoryBase",
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Helmod does this in-game for Factorio multiplayer; SatisfactoryBase invites viewers or editors; Satisfactory Factories uses a password and an owner 'stop sharing'."
+  },
+  {
+    "id": "F-126",
+    "name": "Accounts and cross-device sync",
+    "category": "Sharing",
+    "description": "Sign in and have plans follow you across devices.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Satisfactory Logistics",
+      "SatisfactoryBase",
+      "Satisfactory Solver",
+      "Satisfactory Modeler"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Logins: Discord/Google (Satisfactory Logistics), Steam Cloud (Modeler)."
+  },
+  {
+    "id": "F-127",
+    "name": "No account required",
+    "category": "Sharing",
+    "description": "Full functionality without signing up; data stays in the browser or on disk.",
+    "seen_in": [
+      "FICSIT Planner",
+      "Factory Manager",
+      "Satisfactory Factories",
+      "SatisfactoryBase",
+      "Ferrumium",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. A design stance: accounts are additive, never a gate."
+  },
+  {
+    "id": "F-128",
+    "name": "Offline editing with conflict resolution",
+    "category": "Sharing",
+    "description": "Keep editing a synced plan offline and, on reconnect, see a prompt listing every conflicting change to choose from.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. The prompt survives a page refresh, after a bug where refresh silently picked one side."
+  },
+  {
+    "id": "F-129",
+    "name": "File export and import",
+    "category": "Sharing",
+    "description": "Save a plan to a file (JSON or a custom format) and load it back or send it to someone.",
+    "seen_in": [
+      "Satisfactory Factories",
+      "Factory Manager",
+      "dsp-calc-opt",
+      "SatisfactoryTools",
+      "Satisfactory Modeler",
+      "Foreman2",
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. SatisfactoryTools exports '.sft' (2026-03)."
+  },
+  {
+    "id": "F-130",
+    "name": "Import from another tool",
+    "category": "Sharing",
+    "description": "Read another planner's export format to migrate plans.",
+    "seen_in": [
+      "Satisfactory Logistics"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (SatisfactoryTools .txt import, v0.7). The only cross-tool interop found."
+  },
+  {
+    "id": "F-131",
+    "name": "Named local saved plans",
+    "category": "Sharing",
+    "description": "Keep several named plans or presets in the browser and switch between them.",
+    "seen_in": [
+      "FactorioLab",
+      "Satisfactory Solver",
+      "Alchemy Factory Calculator",
+      "FICSIT Planner"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed."
+  },
+  {
+    "id": "F-132",
+    "name": "Community gallery",
+    "category": "Sharing",
+    "description": "Browse and publish other players' plans or in-game blueprints.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)",
+      "SatisfactoryBase",
+      "Ferrumium",
+      "Blueprint repositories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (SCIM about 4,938 blueprints and 467 megaprints); blueprint repositories reported."
+  },
+  {
+    "id": "F-133",
+    "name": "Shared-text safety rules",
+    "category": "Sharing",
+    "description": "Validate user text in shared plans (no links or markup, length limits) on client and server, and repair old data.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. Arose from an XSS-class bug: tooltips rendered plan text as raw HTML (fixed). Any shared or collaborative feature inherits this."
+  },
+  {
+    "id": "F-134",
+    "name": "Anonymous usage telemetry",
+    "category": "Platform",
+    "description": "Count usage (tabs, plan sizes, feature use) without accounts, to know how the tool is used.",
+    "seen_in": [
+      "Satisfactory Factories"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (six numbers and one flag; searched terms not sent). Relevant to Peter's observability value."
+  },
+  {
+    "id": "F-135",
+    "name": "Multiple games in one tool",
+    "category": "Multi-game",
+    "description": "One app with per-game data packs and a game switcher.",
+    "seen_in": [
+      "FactorioLab",
+      "dsp-calc-opt"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed. FactorioLab covers about 15 games through one generic schema (items, recipes, machines, belts, fuels, modules). dsp-calc-opt switches between DSP mod datasets."
+  },
+  {
+    "id": "F-136",
+    "name": "Custom game data editor",
+    "category": "Multi-game",
+    "description": "Define an entirely new game's items, recipes and machines inside the tool, then share it.",
+    "seen_in": [
+      "FactorioLab"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (FactorioLab editor and 'Custom' game)."
+  },
+  {
+    "id": "F-137",
+    "name": "Sell value and profit",
+    "category": "Multi-game",
+    "description": "Compute what a chain costs to run and what its output sells for.",
+    "seen_in": [
+      "Alchemy Factory Calculator"
+    ],
+    "data_supported": "partial — Satisfactory has no money; AWESOME Sink points are the analogue",
+    "notes": "observed. Core to Alchemy Factory, a shop and economy game."
+  },
+  {
+    "id": "F-138",
+    "name": "Secondary resource budgets",
+    "category": "Multi-game",
+    "description": "Track non-item quantities a chain produces or consumes: heat, nutrients, pollution, net heat value.",
+    "seen_in": [
+      "Alchemy Factory Calculator",
+      "FactorioLab",
+      "dsp-calc-opt"
+    ],
+    "data_supported": "n-a for Satisfactory",
+    "notes": "observed (Alchemy heat and nutrients; FactorioLab pollution; dsp-calc-opt min net heat)."
+  },
+  {
+    "id": "F-139",
+    "name": "Footprint estimate",
+    "category": "Multi-game",
+    "description": "Estimate the floor area the plan's buildings occupy.",
+    "seen_in": [
+      "dsp-calc-opt",
+      "FactorioLab"
+    ],
+    "data_supported": "partial — mClearanceData bounding boxes per building",
+    "notes": "observed. No Satisfactory planner surveyed shows it, though Docs could drive an approximation."
+  },
+  {
+    "id": "F-140",
+    "name": "World seed statistics (non-Satisfactory)",
+    "category": "Multi-game",
+    "description": "Query a procedural world seed for resource availability and feed it into the plan.",
+    "seen_in": [
+      "dsp-calc-opt"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (DSP seed viewer with statistics and confidence intervals). The Satisfactory 1.2 analogue is the world seed finder row."
+  },
+  {
+    "id": "F-141",
+    "name": "Customisation helpers",
+    "category": "Misc",
+    "description": "Colour code converters and palette tools for in-game painting.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "partial — FGCustomizationRecipe (106) present; colour values not checked",
+    "notes": "observed (SCIM colour converter). Off-core."
+  },
+  {
+    "id": "F-142",
+    "name": "World leaderboards",
+    "category": "Misc",
+    "description": "Compare progress or production across uploaded saves.",
+    "seen_in": [
+      "SCIM (satisfactory-calculator.com)"
+    ],
+    "data_supported": "n-a",
+    "notes": "observed (homepage link). Rare; depends on collecting saves."
+  }
+]
