@@ -39,6 +39,7 @@ Every design decision and open question, one block each.
 - **Peter, on runtime loading over compiled-in source:** "i agree with your lean and is how i approached this initially"
 - **Outcome:** each game gets a generator that reads that game's resources and emits data files. The app loads those files at runtime into a strongly typed Rust model, with validation at load.
 - **Rejected:** generated Rust source compiled into the app. Every patch, new game or mod pack would mean a rebuild, and modded recipes couldn't be loaded.
+- **Open: the format of the generated data files.** Asked on 2026-10-08 whether his preference against text files covers them too, Peter chose "Decide later": settle it when the generator is designed. No tripwire is needed, because designing the generator forces the choice.
 - **Peter, 2026-10-08, picker note on F-043:** "when we say hard coded we mean in the schema the model uses correct? not hard constants in the rust code". **Puck's answer, which follows from this ruling:** yes. Game numbers missing from the bundle, such as the purity multipliers, go into a per-game data file that loads like the rest, never into Rust constants.
 - **Puck's reading, not confirmed:** "your lean" is taken to mean the runtime-data option, since that was the lean Puck had stated.
 
@@ -182,6 +183,19 @@ Every design decision and open question, one block each.
 - **Outcome:** design so that no walkthrough is needed, and reveal advanced options step by step. A shipped demo plan is allowed: an example factory to open, which doubles as test data.
 - **Peter, 2026-10-08, picker note on F-081 Guided tutorial and demo plans:** "i will say i saw satisfactory logistics demo/walkthrough. if the interface is bad enough you need that i think maybe making a better interface if possible. or incrementally add advanced options"
 - **Puck's reading, which Peter then ruled:** prefer an interface that needs no walkthrough, with advanced options revealed step by step (progressive disclosure). A shipped demo plan is a separate thing from a walkthrough: an example factory to open, and one that doubles as a test fixture.
+
+### D-033 Plan file format
+- **Status:** ruled 2026-10-08, via the option "Rule SQLite"
+- **Outcome:** plans are stored in SQLite: a documented schema, with the `sqlite3` tool or a factor reader as the way to get text out. The deciding reasons, as Puck put them before the ruling: changes on a large factory save incrementally; transactions give crash-safe autosave; the tenancy scope (D-031) is a column; format versions are schema migrations; and it bundles through `rusqlite` with no system dependency, Windows included.
+- **Rejected:** a binary serialisation (postcard or bincode). It is smaller and simpler, but rewrites the whole file on every save, needs hand-rolled versioning, and can't be queried. Text formats (JSON, TOML, RON) were rejected first, by Peter's preference.
+- **Peter, 2026-10-08, picker note on F-129 File export and import:** "not json please."
+- **Peter, asked why not JSON:** "i don't like text files unless they are required. I think the web with json made a mistake tbh, well that was because whenever i ask why json, i hear "so i as a person can read it" i am used to compiled formats, small, parquat etc. efficient. so Ron would be out too. binary or sqlite, i think sqlite might be interesting if we need to search the data and query on it and it is sql so kind of standard. We can document the format and provide a reader for people to generate a text format if they want."
+- **Ruled with it:** the format is documented, and a reader can turn it into text for anyone who wants that.
+- **Context:** F-129 is now *mvp*: on desktop a saved plan is a file, so saving is export. The format needs a version from day one.
+- **Options as they stood:**
+  - **TOML, RON:** rejected 2026-10-08. Text formats, which Peter doesn't want for data.
+  - **Binary (postcard or bincode) plus a text export:** compact and fast on large factories, but not readable by hand.
+  - **SQLite:** one file per plan or a library of plans; queryable, and transactional saves. The heaviest option.
 
 ---
 
@@ -365,15 +379,3 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - `GlobalModifiers` breaks, since most modifiers are per machine, some act on belts or fuel, and DSP's proliferator is an input.
 - **Prior art:** FactorioLab (MIT) already serves more than ten games from one schema, and puts purity, Somersloops, the proliferator and Foundry's robots under a single "module" idea with per-game flags. Compare against it before designing.
 - **Supports D-014:** Factorio and Foundry measure wagon capacity in stacks, which backs the slots × stack-size proposal.
-
-### D-033 Plan file format
-- **Status:** open
-- **Peter, 2026-10-08, picker note on F-129 File export and import:** "not json please."
-- **Peter, asked why not JSON:** "i don't like text files unless they are required. I think the web with json made a mistake tbh, well that was because whenever i ask why json, i hear "so i as a person can read it" i am used to compiled formats, small, parquat etc. efficient. so Ron would be out too. binary or sqlite, i think sqlite might be interesting if we need to search the data and query on it and it is sql so kind of standard. We can document the format and provide a reader for people to generate a text format if they want."
-- **Status detail:** narrowed 2026-10-08. Text formats (JSON, TOML, RON) are out. Binary or SQLite is open, and Peter leans SQLite ("i think … might be interesting", a lean, not a ruling).
-- **Ruled with it:** the format is documented, and a reader can turn it into text for anyone who wants that.
-- **Context:** F-129 is now *mvp*: on desktop a saved plan is a file, so saving is export. The format needs a version from day one.
-- **Options (Puck, not ruled):**
-  - **TOML, RON:** rejected 2026-10-08. Text formats, which Peter doesn't want for data.
-  - **Binary (postcard or bincode) plus a text export:** compact and fast on large factories, but not readable by hand.
-  - **SQLite:** one file per plan or a library of plans; queryable, and transactional saves. The heaviest option.

@@ -32,6 +32,8 @@ anything. Add new questions there, never inline here. This section lists only th
   change recomputes only the part of the graph it touches, and loops are solved as equations.
 - **Raw resources (D-018):** extraction is a recipe with no inputs in the model; the screen defaults to "free up
   to a cap" until sourcing is turned on.
+- **Plan files are SQLite (D-033):** a documented schema, and the way to get text out is a reader, not a
+  text format. JSON, TOML and RON are rejected.
 - **Interface over tutorials (D-034):** design so no walkthrough is needed; reveal advanced options step by step.
   A demo plan is fine.
 - **Graph semantics (D-020):** the core solves conservation plus ideal ratios as a linear program. In-game
