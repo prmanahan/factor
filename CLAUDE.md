@@ -10,7 +10,12 @@ benchmark it has to beat. Hobby project.
 `D-NNN` id, Peter's words verbatim, the options considered, and a status. Read it before designing
 anything. Add new questions there, never inline here. This section lists only the **ruled** outcomes:
 
-- **Platform (D-001):** Rust desktop app. macOS now, Windows later, so nothing may rule Windows out.
+- **Platform (D-001):** Rust desktop app first. macOS now, Windows later, so nothing may rule Windows out.
+- **Desktop first (D-030):** no server side and no accounts in the first build. They are deferred, not ruled out.
+- **Shape what is hard to retrofit (D-031):** a concern that is expensive to add later gets a minimal internal
+  accommodation now. Globalisation and tenancy are the named examples.
+- **Graphics are a view (D-032):** the drawing is separate from the backend and replaceable, possibly with a
+  web view later.
 - **Multi-game (D-002):** the core is game-neutral, and Satisfactory is the first game, not the
   template. Games in scope: Satisfactory, Factorio, Techtonica, Foundry, Alchemy Factory.
 - **Data pipeline (D-003):** each game gets a generator that emits data files. The app loads them at
@@ -22,7 +27,7 @@ anything. Add new questions there, never inline here. This section lists only th
 - **Power and modifiers follow per-game curves (D-007), and clocks are continuous and exact (D-008):**
   load is spread evenly across whole machines, and clock values are ones the game accepts, to 4
   decimal places.
-- **Calculation is separate from layout and drawing (D-009).**
+- **Calculation is separate from layout and drawing (D-009).** D-032 extends this: the drawing is a replaceable view.
 - **Tracking (D-010):** decisions go in `docs/decisions.md`, and work goes in brain project `factor` (id 40).
 
 ## Layout and vocabulary (D-011, applied)

@@ -18,8 +18,12 @@ Every design decision and open question, one block each.
 
 ### D-001 Platform
 - **Status:** ruled 2026-10-05
+- **Amended:** 2026-10-08, see D-030 and D-032
 - **Peter:** "this will start as a rust based desktop app and will likely stay that way. we can run on mac for now but eventually i'll want a windows version"
-- **Outcome:** a Rust desktop app. macOS first and Windows later, so nothing may rule Windows out.
+- **Peter, 2026-10-08:** "this is a desktop tool initially so the server side and multiple accounts can wait"
+- **Peter, 2026-10-08:** "The graphics is a view so we could switch to a webbased one eventually, its also cleaner."
+- **Outcome:** a Rust desktop app first. macOS first and Windows later, so nothing may rule Windows out. The calculation backend stays Rust; the drawing is a replaceable view (D-032), and a web view is a possibility Peter named, not a plan.
+- **Superseded reading:** "will likely stay that way" read as desktop-only for good. As of 2026-10-08 the desktop is where it *starts*, and the view may move to the web.
 
 ### D-002 Multi-game core, no lock-in
 - **Status:** ruled 2026-10-05
@@ -27,6 +31,7 @@ Every design decision and open question, one block each.
 - **Peter:** "techtonia and foundry and factorio are other examples i have used in terms of playing them. which is why i think there is similaries and differences"
 - **Outcome:** the core is game-neutral. Satisfactory is the first game, not the core's template. Design the core from several games' data shapes. Peter's experience playing the other games is primary evidence.
 - **Games in scope:** Satisfactory, Factorio, Techtonica, Foundry, Alchemy Factory.
+- **Picker, 2026-10-08:** F-135 "Multiple games in one tool" marked *shape*, note: "start with satisfactory". So the model carries multi-game from day one, and the game switcher ships later.
 
 ### D-003 Game data pipeline
 - **Status:** ruled 2026-10-05
@@ -103,6 +108,29 @@ Every design decision and open question, one block each.
   - Identity is by id only.
   - A `GlobalModifiers` field in the old model was never used.
 
+### D-030 Desktop first: server side and accounts wait
+- **Status:** ruled 2026-10-08; how the picker's sharing rows read against it is open (below)
+- **Peter:** "this is a desktop tool initially so the server side and multiple accounts can wait"
+- **Outcome:** no server component and no accounts in the first build. Both are deferred, not ruled out, and D-031 still applies to them.
+- **Open, raised by Puck:** in the feature picker Peter marked F-124 live collaborative editing, F-125 shared-plan permissions, F-126 accounts and cross-device sync, and F-127 no account required as *skip*. "Can wait" reads as *later*, and D-031 makes tenancy *shape*. Not reconciled: the picks are left as he set them until he says which reading holds.
+
+### D-031 Hard-to-retrofit concerns are shaped in from the start
+- **Status:** ruled 2026-10-08
+- **Peter:** "if something is hard to put in later like globaliztion we at least minimally account for it internally. same with tenency."
+- **Outcome:** a concern that is expensive to retrofit gets a minimal internal accommodation now, even when its features ship later. This is the picker's *shape* verdict stated as a rule. Globalisation and tenancy are the two Peter named; they are examples, not the full list.
+- **Globalisation, Puck's proposal (not ruled):**
+  - Identity is the game's class id (`Recipe_IngotIron_C`), never a display name.
+  - Display text is looked up by locale key. The data already ships it this way: 55 locale files over the same 2,868 classes, differing only in display text (measured, see `CLAUDE.md`).
+  - Number formatting lives in the view, never in the core. The core holds exact values (D-008); the view decides "88.8888" versus "88,8888".
+  - Consistent with the picker: F-078 Localisation is marked *shape*.
+- **Tenancy, open:** what it means in factor is not yet defined. Puck's proposal for the minimal form: every stored plan carries an owner or workspace id, and storage is reached through that scope, even while there is only ever one value.
+
+### D-032 The graphics are a view, separate from the backend
+- **Status:** ruled 2026-10-08; extends D-009, and settles the presentation boundary of D-012
+- **Peter:** "Asssume the graphics and the backend are separate. The graphics is a view so we could switch to a webbased one eventually, its also cleaner."
+- **Outcome:** the drawing is a view over the backend and can be replaced without touching it. A web-based view is named as a possible future.
+- **Puck's derivation, not ruled:** for a web view to be swappable in, the view-to-backend boundary has to be a data interface (requests and results that can be serialised), not shared in-process state. Building the desktop view against that interface from the start is what keeps the swap cheap.
+
 ---
 
 ## Open
@@ -113,9 +141,17 @@ Research behind these lives in `docs/research/`:
 - `calc-features.json` and `calc-tools.md`: the feature catalogue (`F-NNN`) and the tool survey behind it.
 - `data-sources-2026-10.md`: the data-sources brief, covering save parsers, missing-data sources, publisher terms and the cross-game model matrix. "Data brief §N" refers to it; its §8 decisions are mapped onto D-019 and D-025 to D-029.
 
+**Feature picker, round 1 (2026-10-08).** Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts:
+- *mvp*: in the first build.
+- *shape*: the data model carries it from day one, and the behaviour comes later.
+- *later*: not now.
+- *skip*: not wanted.
+
+A verdict is Peter's label on a catalogue row, not his words about a decision. Where a row maps to a decision below, the verdict is recorded there as evidence, and the decision stays open until he rules it.
+
 ### D-012 Layer split: calculation, physical, presentation
-- **Status:** open
-- **Context:** D-009.
+- **Status:** open, except the presentation boundary, which D-032 ruled on 2026-10-08: presentation is a separate, replaceable view. The physical layer and how physical limits reach the solver are still open.
+- **Context:** D-009, D-032.
 - **Proposal (Puck):** three layers.
   - **Calculation:** formulas and rates.
   - **Physical:** footprint, port count, positions and kinds, per-port and per-carrier caps.
@@ -176,6 +212,13 @@ Research behind these lives in `docs/research/`:
   - **(c) Graph propagation, Modeler-style.** It fails at scale when every node is recomputed on each change, and loops have to be iterated until they settle.
 - **Proposal (Puck), whatever the solver:** recompute only the connected part a change touches, and solve loops directly as equations.
 - **Related features:** F-001 to F-005 in the feature catalogue are the five calculation models found in existing tools.
+- **Picker verdicts, 2026-10-08:**
+  - F-001 LP auto-solve to target rates: *mvp*
+  - F-002 Recursive tree expansion: *later*
+  - F-003 Manual node graph with rate propagation: *shape*
+  - F-004 Splitter/merger behaviour simulation: *later* (bears on D-020)
+  - F-005 Manual ledger with satisfy/trim sizing: *later*
+- **Puck's reading, not ruled:** linear programming in the first build, with the model shaped for a hand-drawn graph. That matches option (a).
 - **Research (engine brief (docs/research/engine-2026-10.md) §1–2, 2026-10-05):**
   - **Linear programming is enough.** Neither SAT nor a mixed-integer model is needed for rates.
   - **Measured by Sage, and re-run by Puck with matching results** (HiGHS 1.15.1 via Python, Apple M4):
@@ -188,6 +231,7 @@ Research behind these lives in `docs/research/`:
 ### D-018 Raw resources: free up to a cap, or must be sourced
 - **Status:** open
 - **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
+- **Picker, 2026-10-08:** F-046 has no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
 
 ### D-019 Icons and map data: source and redistribution
 - **Status:** open
@@ -198,6 +242,11 @@ Research behind these lives in `docs/research/`:
   - **Purity multipliers:** 0.5× / 1× / 2× is reported, not extracted.
   - **No source anywhere** for machine port counts or positions.
 - **Icons sub-question (data brief §8.4):** ship them, have users extract them, or use none.
+- **Picker verdicts, 2026-10-08:**
+  - F-094 Game icon extraction: *mvp*
+  - F-095 Resource node map: *shape*
+  - F-096 Collectibles map: *shape*
+- **Puck's note:** icons at *mvp* puts the redistribution question (this decision, D-025 and D-026) inside the first build. Asking users to extract the icons themselves avoids it, but adds the D-026 Windows-install problem.
 
 ### D-020 Graph semantics: conservation and ratios, or in-game splitter behaviour
 - **Status:** open. The engine brief calls it the decision that shapes the engine most (brief §7 D1).
@@ -205,6 +254,7 @@ Research behind these lives in `docs/research/`:
   - **(a) Conservation plus fixed ratios:** a linear program, fast and well understood. *Recommended by the brief.*
   - **(b) In-game behaviour:** even splits, priority splitters, backpressure, deadlock or starvation detection. This is what Modeler's users praise **and** what makes it slow. The only route the brief found is an untested sequence of linear programs.
 - **Brief's recommendation:** (a) as the core. In-game simulation is **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan.
+- **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. That this settles D-020 has been put to Peter as a question.
 
 ### D-021 Solver dependency
 - **Status:** open (brief §7 D3)
