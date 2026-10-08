@@ -156,7 +156,7 @@ Research behind these lives in `docs/research/`:
 **Feature picker, round 1 (2026-10-08).** Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts, as Peter defines them: "i took skip to mean that we know about them but not right now, later is we will implement and shape was ensure it has the backend structured for it."
 - *mvp*: in the first build.
 - *shape*: the backend is structured for it from the start; the feature itself comes later.
-- *later*: will be implemented, after the first build.
+- *later*: will be implemented eventually, not immediately. Peter: "later means eventually not immeduately".
 - *skip*: known about, not planned now. **Not** a rejection.
 - **Superseded reading (Puck, 2026-10-08):** *skip* as "not wanted" and *later* as "not now". Wrong on both: it read his skips as refusals.
 
