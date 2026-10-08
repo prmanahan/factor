@@ -30,6 +30,14 @@ anything. Add new questions there, never inline here. This section lists only th
   decimal places.
 - **Core calculation model (D-017):** a linear program, mixed-integer only where whole machines force it. A
   change recomputes only the part of the graph it touches, and loops are solved as equations.
+- **Engine (D-016, D-021, D-022, D-023):**
+  - Rates are solved first, then whole machines are sized with exact clocks. Power is computed from the
+    curve afterwards and fed back only where it binds.
+  - HiGHS through the `highs` crate, behind factor's own solver trait, with microlp as fallback and cross-check.
+  - The solve is in floats, re-checked in exact rationals, and the rationals are what is shown.
+  - The default objective is least raw resources weighted by scarcity, with fewer buildings as the
+    tie-break. The weights are tunable under advanced options. The formulation is elastic, so problems
+    are named, never a bare "infeasible".
 - **Raw resources (D-018):** extraction is a recipe with no inputs in the model; the screen defaults to "free up
   to a cap" until sourcing is turned on.
 - **Plan files are SQLite (D-033):** a documented schema, and the way to get text out is a reader, not a

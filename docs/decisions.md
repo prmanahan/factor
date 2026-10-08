@@ -197,6 +197,54 @@ Every design decision and open question, one block each.
   - **Binary (postcard or bincode) plus a text export:** compact and fast on large factories, but not readable by hand.
   - **SQLite:** one file per plan or a library of plans; queryable, and transactional saves. The heaviest option.
 
+### D-016 Nonlinear power and clocks in the solver
+- **Status:** ruled 2026-10-08, via the option "Fix clock, then size"
+- **Outcome:** option (c), the brief's option A. Rates are solved exactly as a linear program. Whole machines are chosen afterwards, by fewest buildings or a count Peter sets, with clock = rate ÷ (count × base), exact. Power is computed from the per-game curve afterwards, and fed back into the solve only where it binds. Somersloops change material flow, so they are set before the solve (brief §3).
+- **Not selected:** optimising shard and Somersloop placement from stock (the brief's option B, mixed-integer), offered as "also optimise shards/sloops". Not rejected: the brief suggests adding it when it's wanted. Piecewise approximation (option b) was not selected either.
+- **Context:** D-007, D-008.
+- **Options:**
+  - **(a) Fixed clock steps** as separate solver options. *Weakened by D-008:* Peter uses arbitrary exact clocks.
+  - **(b) Piecewise-linear approximation:** mixed-integer, approximate power, any clock.
+  - **(c) Solve rates as a linear program, then size machines.** The machine count comes from Peter or a rule (fewest buildings, least power). Clock = rate ÷ (count × base), exact. Power is computed from the curve afterwards. Power enters the solver only when it is the binding limit ("most output from 500 MW"). *Puck's current lean, revised after D-008.*
+- **Research (engine brief (docs/research/engine-2026-10.md) §3, 2026-10-05):**
+  - Every tool read fixes the clock per recipe before solving and computes power afterwards. For a fixed clock, power is linear in rate; that's Sage's derivation, labelled inferred.
+  - Somersloops change material flow, so they have to go inside the solve, not after it.
+  - Whole machines come from rounding up after the solve in every tool read.
+  - The brief's recommendation is "option A first": clock fixed before the solve, which is (c) above. Somersloop-stock optimisation as a mixed-integer model (its "option B") is added only when wanted.
+  - This is the brief's D2.
+
+### D-021 Solver dependency
+- **Status:** ruled 2026-10-08 (brief §7 D3), via the option "HiGHS, own trait"
+- **Outcome:** HiGHS through the `highs` crate directly, behind factor's own solver interface (build model → solve → primal values, duals, status). microlp is kept compiling as a toolchain-free fallback and a cross-check. Building needs CMake and a C++ compiler, plus LLVM/Clang on Windows; nothing extra for whoever runs the app.
+- **Rejected:** microlp alone (slower, less proven, no duals, and its README makes no optimality guarantee); HiGHS through `good_lp` (CBC copyleft default, hides HiGHS's diagnostics, no determinism promise).
+- **Options:**
+  - **(a) HiGHS:** MIT licence, fast, gives duals. Needs CMake and a C++ compiler to build, plus libclang on Windows.
+  - **(b) microlp:** pure Rust, Apache-2.0, no duals, slower and less proven.
+- **Recommended by the brief:** HiGHS behind factor's own trait, with microlp kept compiling as a fallback that needs no toolchain.
+- **Traps:**
+  - `good_lp` defaults to the CBC backend (EPL-2.0 licence, system library), so set `default-features = false`.
+  - The `highs` crate doesn't wrap HiGHS's IIS, ranging or warm-start calls, so those need unsafe FFI.
+- **Unverified:** whether HiGHS still needs `libomp` on macOS. The build-cleanly claims rest only on CI configuration files.
+
+### D-022 Exactness: floats with a residual check, or exact rationals for results
+- **Status:** ruled 2026-10-08 (brief §7 D4), via the option "Exact fractions"
+- **Outcome:** solve in floating point for speed, then re-check the final answer in exact rational arithmetic, and show the rationals (37.5 = 75/2, 88.8888% = 8/9). Rounding for display never overdraws a limited input (D-008).
+- **Rejected:** floats with only a residual tolerance check: rounding can still overdraw by a hair.
+- **Context:** D-008 requires exact clock values to 4 decimal places that never overdraw a limited input.
+- **Recommended by the brief:** show rationals, and re-check the final basis in exact arithmetic. YAFC's precision bugs are the cautionary tale.
+
+### D-023 Default objective and penalty weights
+- **Status:** ruled 2026-10-08 (brief §7 D5), via the option "Scarce resources + tuning"
+- **Outcome:** by default the plan minimises raw resources weighted by how scarce each is, with fewer buildings as the tie-break. The weights are re-tunable (power, buildings, a specific resource) behind advanced options, per D-034. The formulation is elastic: every item carries penalised surplus, import and "can't produce" slack, so a plan always comes back with its problems named, never a bare "infeasible" (picker F-013 *shape*).
+- **Not selected:** fewest buildings, least power, or fully user-tunable weights with no strong default.
+- **Options:**
+  - least raw resources, weighted by scarcity;
+  - fewest buildings;
+  - least power;
+  - user-tunable, as in FactorioLab.
+- Each option changes which alternate recipes the plan picks.
+- **Related:** the brief recommends an *elastic* model by default. Every item gets penalised surplus, import and "can't produce" slack, so a plan always comes back with its problems named, never a bare "infeasible". IIS stays a developer tool. That elastic default was part of the option Peter chose.
+
 ---
 
 ## Open
@@ -256,20 +304,6 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - **(b) A belt/pipe tag on each item.** Proposed first, before D-006.
 - Either way, the calculation never sees it; it serves the physical layer only.
 
-### D-016 Nonlinear power and clocks in the solver
-- **Status:** open
-- **Context:** D-007, D-008.
-- **Options:**
-  - **(a) Fixed clock steps** as separate solver options. *Weakened by D-008:* Peter uses arbitrary exact clocks.
-  - **(b) Piecewise-linear approximation:** mixed-integer, approximate power, any clock.
-  - **(c) Solve rates as a linear program, then size machines.** The machine count comes from Peter or a rule (fewest buildings, least power). Clock = rate ÷ (count × base), exact. Power is computed from the curve afterwards. Power enters the solver only when it is the binding limit ("most output from 500 MW"). *Puck's current lean, revised after D-008.*
-- **Research (engine brief (docs/research/engine-2026-10.md) §3, 2026-10-05):**
-  - Every tool read fixes the clock per recipe before solving and computes power afterwards. For a fixed clock, power is linear in rate; that's Sage's derivation, labelled inferred.
-  - Somersloops change material flow, so they have to go inside the solve, not after it.
-  - Whole machines come from rounding up after the solve in every tool read.
-  - The brief's recommendation is "option A first": clock fixed before the solve, which is (c) above. Somersloop-stock optimisation as a mixed-integer model (its "option B") is added only when wanted.
-  - This is the brief's D2.
-
 ### D-019 Icons and map data: source and redistribution
 - **Status:** open
 - **Context:** features F-094, F-095, F-096. The CommunityResources bundle has texture paths but no images, and no node, collectible or port positions. Extraction from a local install is possible (FModel or CUE4Parse plus the bundle's `.usmap`). Whether extracted art and data may be redistributed is a licence question; SCIM's licence forbids reusing its map data. Repo visibility (public by default) makes this matter before the first push.
@@ -287,32 +321,6 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **Peter, 2026-10-08, asked how the first build gets icons:** "this is initially for me only, we'll need a windows build of it i guess or i can copy a save over, want to get it working first before worrying about sharing."
 - **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
 - **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
-
-### D-021 Solver dependency
-- **Status:** open (brief §7 D3)
-- **Options:**
-  - **(a) HiGHS:** MIT licence, fast, gives duals. Needs CMake and a C++ compiler to build, plus libclang on Windows.
-  - **(b) microlp:** pure Rust, Apache-2.0, no duals, slower and less proven.
-- **Recommended by the brief:** HiGHS behind factor's own trait, with microlp kept compiling as a fallback that needs no toolchain.
-- **Traps:**
-  - `good_lp` defaults to the CBC backend (EPL-2.0 licence, system library), so set `default-features = false`.
-  - The `highs` crate doesn't wrap HiGHS's IIS, ranging or warm-start calls, so those need unsafe FFI.
-- **Unverified:** whether HiGHS still needs `libomp` on macOS. The build-cleanly claims rest only on CI configuration files.
-
-### D-022 Exactness: floats with a residual check, or exact rationals for results
-- **Status:** open (brief §7 D4)
-- **Context:** D-008 requires exact clock values to 4 decimal places that never overdraw a limited input.
-- **Recommended by the brief:** show rationals, and re-check the final basis in exact arithmetic. YAFC's precision bugs are the cautionary tale.
-
-### D-023 Default objective and penalty weights
-- **Status:** open (brief §7 D5)
-- **Options:**
-  - least raw resources, weighted by scarcity;
-  - fewest buildings;
-  - least power;
-  - user-tunable, as in FactorioLab.
-- Each option changes which alternate recipes the plan picks.
-- **Related:** the brief recommends an *elastic* model by default. Every item gets penalised surplus, import and "can't produce" slack, so a plan always comes back with its problems named, never a bare "infeasible". IIS stays a developer tool. That elastic default is folded in here as a proposal, not ruled.
 
 ### D-024 "Plan to targets" and "the graph I drew": one view or two
 - **Status:** open (brief §7 D6)
