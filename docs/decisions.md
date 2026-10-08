@@ -402,3 +402,14 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - F-067 Notes and tasks per factory: *mvp*
 - **Prior art (tool survey, `docs/research/calc-tools.md`):** Modeler nests outposts as sub-canvases, and reuses blueprints as sub-modules with limits. Satisfactory Factories keeps a ledger of up to 300 factories with imports and exports between them, plus groups with rollups. Satisfactory Logistics links factories through tracked inputs and outputs.
 - **Questions to settle:** what a factory is in the model (a solve boundary or only a grouping); how flows between factories are represented (as transport, D-006); how deep nesting goes; and how a spun-off sub-chain stays linked to its parent.
+
+### D-036 UI toolkit
+- **Status:** open
+- **Peter, 2026-10-08:** "i was considering dioxus, i'd prefer close to native vs web format but that will cause some concerns :-)"
+- **Why it matters now:** the UI brief for Claude Design (`docs/design/ui-brief.md`) produces HTML/CSS mockups. How directly those carry into code depends on this choice, and so does which agent can implement the view (D-032).
+- **Options (Puck, not ruled):**
+  - **Dioxus.** Rust throughout, React-like components, styled with HTML/CSS, so Claude Design's tokens and layouts carry over closely. The same components can target the web later (D-032). ⚠ **Its desktop renderer today is a system webview** (Wry): "Dioxus desktop is built upon the Wry library … using a WebView", and the WGPU-based native renderer (Blitz) is described as "experimental" (Dioxus 0.7 docs, read via Context7 on 2026-10-08). So "close to native" means betting on Blitz maturing. Its API has also changed between minor versions (0.6 to 0.7).
+  - **Tauri with a web front end.** The same webview model, with the view in TypeScript (Svelte), which is the frontend agent's stack. That adds a second language, which Peter's Rust preference weighs against.
+  - **A native Rust UI** (egui, Iced or Slint). Truly native rendering. egui suits dense tool UIs and node graphs; Iced and Slint are declarative. None of them uses CSS, so the mockups become a reference that has to be translated by hand. Licences not checked.
+- **The real test, which applies to every option (Puck's derivation):** the diagram must stay fast with hundreds of nodes, the whole point against Modeler. Proposal: a spike that renders a generated 500-node plan diagram in the leading candidate, measuring frame time and memory, before ruling.
+- **Agent coverage:** no current implementer agent builds in Dioxus or the native toolkits. Forge is backend Rust, and Rune is Svelte/TypeScript. A Dioxus choice means extending Forge's scope or hiring a view agent.
