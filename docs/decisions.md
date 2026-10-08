@@ -144,6 +144,45 @@ Every design decision and open question, one block each.
 - **Brief's recommendation:** (a) as the core. In-game simulation would be **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan. (Superseded by the ruling: Peter wants the check, so it is now a tracked task.)
 - **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. Asked whether that settles D-020, Peter chose "Not yet" (2026-10-08). That was Puck's option, worded as wanting to talk through what losing in-game splitter behaviour costs before ruling.
 
+### D-017 Core calculation model
+- **Status:** ruled 2026-10-08, via the option "Yes, rule it" (Puck's wording, his answer is the label)
+- **Outcome:** option (a). The core is a linear program, mixed-integer only where whole machines force it. A change recomputes only the connected part of the graph it touches, and loops are solved directly as equations. Follows from D-020 (ideal ratios) and F-001 LP auto-solve at *mvp*.
+- **Rejected:** (b) SAT / constraint programming, Peter's starting assumption: rates are continuous and the questions are optimisation questions, which SAT doesn't answer. (c) Modeler-style propagation: it recomputes every node on every change, and has to iterate loops until they settle.
+- **Peter:** "i assume currenly we need something like a sat solver, but we can discussion. modeller dies because it can't calculate all the nodes on a change and it looks like it runs out of memory. its java so that is always an issue. it does have some nice features but it isn't structured how i like."
+- **Options:**
+  - **(a) Linear programming,** mixed-integer only where whole machines are required. Used for planning ("hit these targets") and for propagating flows through a drawn graph. *Puck's recommendation.*
+  - **(b) SAT / constraint programming.** Peter's starting assumption. Puck's view: SAT answers yes/no over true/false variables, while factory rates are continuous and the questions are optimisation questions.
+  - **(c) Graph propagation, Modeler-style.** It fails at scale when every node is recomputed on each change, and loops have to be iterated until they settle.
+- **Proposal (Puck), whatever the solver:** recompute only the connected part a change touches, and solve loops directly as equations.
+- **Related features:** F-001 to F-005 in the feature catalogue are the five calculation models found in existing tools.
+- **Picker verdicts, 2026-10-08:**
+  - F-001 LP auto-solve to target rates: *mvp*
+  - F-002 Recursive tree expansion: *later*
+  - F-003 Manual node graph with rate propagation: *shape*
+  - F-004 Splitter/merger behaviour simulation: *later* (bears on D-020)
+  - F-005 Manual ledger with satisfy/trim sizing: *later*
+- **Research (engine brief (docs/research/engine-2026-10.md) §1–2, 2026-10-05):**
+  - **Linear programming is enough.** Neither SAT nor a mixed-integer model is needed for rates.
+  - **Measured by Sage, and re-run by Puck with matching results** (HiGHS 1.15.1 via Python, Apple M4):
+    - whole-game Satisfactory, 291 machine recipes: about 0.9 ms;
+    - 300 coupled factory copies (141,600 columns) with binding resource caps: about 666 ms.
+  - **Proving a model infeasible is the slow case:** 8.9 s, against 0.47 s for a feasible one (Sage, not re-run).
+  - **Modeler is slow because of its semantics, not its solver** (observed, from its 2025-03-26 devlog). It simulates in-game splitter and merger behaviour, and its own manual calculators "always run quickly". That makes D-020 the deciding question.
+- **Still unanswered:** what "isn't structured how i like" means: factory organisation (sub-factories, hierarchy) or tool workflow.
+
+### D-018 Raw resources: free up to a cap, or must be sourced
+- **Status:** ruled 2026-10-08, via the option "Yes, rule it"
+- **Outcome:** the model treats extraction as a recipe with no inputs, so miners, nodes and their power can appear in a plan. The screen defaults to "free up to a cap" until sourcing is turned on. Per-node sourcing can come later without a model change.
+- **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
+- **Picker, round 2 (2026-10-08):** F-046 marked *shape*, after reading Puck's lean: extraction is modelled as a recipe with no inputs, and the screen defaults to "free up to a cap".
+- **Picker, round 1:** F-046 had no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
+
+### D-034 Interface over tutorials
+- **Status:** ruled 2026-10-08, via the option "Yes, as stated"
+- **Outcome:** design so that no walkthrough is needed, and reveal advanced options step by step. A shipped demo plan is allowed: an example factory to open, which doubles as test data.
+- **Peter, 2026-10-08, picker note on F-081 Guided tutorial and demo plans:** "i will say i saw satisfactory logistics demo/walkthrough. if the interface is bad enough you need that i think maybe making a better interface if possible. or incrementally add advanced options"
+- **Puck's reading, which Peter then ruled:** prefer an interface that needs no walkthrough, with advanced options revealed step by step (progressive disclosure). A shipped demo plan is a separate thing from a walkthrough: an example factory to open, and one that doubles as a test fixture.
+
 ---
 
 ## Open
@@ -216,37 +255,6 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - Whole machines come from rounding up after the solve in every tool read.
   - The brief's recommendation is "option A first": clock fixed before the solve, which is (c) above. Somersloop-stock optimisation as a mixed-integer model (its "option B") is added only when wanted.
   - This is the brief's D2.
-
-### D-017 Core calculation model
-- **Status:** open
-- **Peter:** "i assume currenly we need something like a sat solver, but we can discussion. modeller dies because it can't calculate all the nodes on a change and it looks like it runs out of memory. its java so that is always an issue. it does have some nice features but it isn't structured how i like."
-- **Options:**
-  - **(a) Linear programming,** mixed-integer only where whole machines are required. Used for planning ("hit these targets") and for propagating flows through a drawn graph. *Puck's recommendation.*
-  - **(b) SAT / constraint programming.** Peter's starting assumption. Puck's view: SAT answers yes/no over true/false variables, while factory rates are continuous and the questions are optimisation questions.
-  - **(c) Graph propagation, Modeler-style.** It fails at scale when every node is recomputed on each change, and loops have to be iterated until they settle.
-- **Proposal (Puck), whatever the solver:** recompute only the connected part a change touches, and solve loops directly as equations.
-- **Related features:** F-001 to F-005 in the feature catalogue are the five calculation models found in existing tools.
-- **Picker verdicts, 2026-10-08:**
-  - F-001 LP auto-solve to target rates: *mvp*
-  - F-002 Recursive tree expansion: *later*
-  - F-003 Manual node graph with rate propagation: *shape*
-  - F-004 Splitter/merger behaviour simulation: *later* (bears on D-020)
-  - F-005 Manual ledger with satisfy/trim sizing: *later*
-- **Puck's reading, not ruled:** linear programming in the first build, with the model shaped for a hand-drawn graph. That matches option (a).
-- **Research (engine brief (docs/research/engine-2026-10.md) §1–2, 2026-10-05):**
-  - **Linear programming is enough.** Neither SAT nor a mixed-integer model is needed for rates.
-  - **Measured by Sage, and re-run by Puck with matching results** (HiGHS 1.15.1 via Python, Apple M4):
-    - whole-game Satisfactory, 291 machine recipes: about 0.9 ms;
-    - 300 coupled factory copies (141,600 columns) with binding resource caps: about 666 ms.
-  - **Proving a model infeasible is the slow case:** 8.9 s, against 0.47 s for a feasible one (Sage, not re-run).
-  - **Modeler is slow because of its semantics, not its solver** (observed, from its 2025-03-26 devlog). It simulates in-game splitter and merger behaviour, and its own manual calculators "always run quickly". That makes D-020 the deciding question.
-- **Still unanswered:** what "isn't structured how i like" means: factory organisation (sub-factories, hierarchy) or tool workflow.
-
-### D-018 Raw resources: free up to a cap, or must be sourced
-- **Status:** open
-- **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
-- **Picker, round 2 (2026-10-08):** F-046 marked *shape*, after reading Puck's lean: extraction is modelled as a recipe with no inputs, and the screen defaults to "free up to a cap". Whether that rules D-018 has been put to Peter as a question.
-- **Picker, round 1:** F-046 had no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
 
 ### D-019 Icons and map data: source and redistribution
 - **Status:** open
@@ -361,14 +369,11 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 ### D-033 Plan file format
 - **Status:** open
 - **Peter, 2026-10-08, picker note on F-129 File export and import:** "not json please."
-- **Context:** F-129 is now *mvp*: on desktop a saved plan is a file, so saving is export. The format needs a version field from day one. Peter has ruled out JSON; why is not recorded yet.
+- **Peter, asked why not JSON:** "i don't like text files unless they are required. I think the web with json made a mistake tbh, well that was because whenever i ask why json, i hear "so i as a person can read it" i am used to compiled formats, small, parquat etc. efficient. so Ron would be out too. binary or sqlite, i think sqlite might be interesting if we need to search the data and query on it and it is sql so kind of standard. We can document the format and provide a reader for people to generate a text format if they want."
+- **Status detail:** narrowed 2026-10-08. Text formats (JSON, TOML, RON) are out. Binary or SQLite is open, and Peter leans SQLite ("i think … might be interesting", a lean, not a ruling).
+- **Ruled with it:** the format is documented, and a reader can turn it into text for anyone who wants that.
+- **Context:** F-129 is now *mvp*: on desktop a saved plan is a file, so saving is export. The format needs a version from day one.
 - **Options (Puck, not ruled):**
-  - **TOML:** human-readable and diffable, and already Rust's own config language. Gets awkward for deeply nested graphs.
-  - **RON (Rust Object Notation):** maps one-to-one onto Rust types, and allows comments and trailing commas. Little used outside Rust.
+  - **TOML, RON:** rejected 2026-10-08. Text formats, which Peter doesn't want for data.
   - **Binary (postcard or bincode) plus a text export:** compact and fast on large factories, but not readable by hand.
   - **SQLite:** one file per plan or a library of plans; queryable, and transactional saves. The heaviest option.
-
-### D-034 Interface over tutorials
-- **Status:** open (Peter's hedged view, recorded for discussion)
-- **Peter, 2026-10-08, picker note on F-081 Guided tutorial and demo plans:** "i will say i saw satisfactory logistics demo/walkthrough. if the interface is bad enough you need that i think maybe making a better interface if possible. or incrementally add advanced options"
-- **Puck's reading, not ruled:** prefer an interface that needs no walkthrough, with advanced options revealed step by step (progressive disclosure). A shipped demo plan is a separate thing from a walkthrough: an example factory to open, and one that doubles as a test fixture.

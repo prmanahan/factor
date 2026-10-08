@@ -28,6 +28,12 @@ anything. Add new questions there, never inline here. This section lists only th
 - **Power and modifiers follow per-game curves (D-007), and clocks are continuous and exact (D-008):**
   load is spread evenly across whole machines, and clock values are ones the game accepts, to 4
   decimal places.
+- **Core calculation model (D-017):** a linear program, mixed-integer only where whole machines force it. A
+  change recomputes only the part of the graph it touches, and loops are solved as equations.
+- **Raw resources (D-018):** extraction is a recipe with no inputs in the model; the screen defaults to "free up
+  to a cap" until sourcing is turned on.
+- **Interface over tutorials (D-034):** design so no walkthrough is needed; reveal advanced options step by step.
+  A demo plan is fine.
 - **Graph semantics (D-020):** the core solves conservation plus ideal ratios as a linear program. In-game
   jams and starvation are a separate check over a solved plan, later (brain #3924).
 - **Calculation is separate from layout and drawing (D-009).** D-032 extends this: the drawing is a replaceable view.
