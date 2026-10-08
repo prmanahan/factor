@@ -109,10 +109,10 @@ Every design decision and open question, one block each.
   - A `GlobalModifiers` field in the old model was never used.
 
 ### D-030 Desktop first: server side and accounts wait
-- **Status:** ruled 2026-10-08; how the picker's sharing rows read against it is open (below)
+- **Status:** ruled 2026-10-08
 - **Peter:** "this is a desktop tool initially so the server side and multiple accounts can wait"
 - **Outcome:** no server component and no accounts in the first build. Both are deferred, not ruled out, and D-031 still applies to them.
-- **Open, raised by Puck:** in the feature picker Peter marked F-124 live collaborative editing, F-125 shared-plan permissions, F-126 accounts and cross-device sync, and F-127 no account required as *skip*. "Can wait" reads as *later*, and D-031 makes tenancy *shape*. Not reconciled: the picks are left as he set them until he says which reading holds.
+- **Picker:** F-124 live collaborative editing, F-125 shared-plan permissions, F-126 accounts and cross-device sync and F-127 no account required are marked *skip*, which by Peter's definition means known about but not planned now. That is consistent with this ruling. Puck had raised it as a conflict under a wrong reading of *skip*.
 
 ### D-031 Hard-to-retrofit concerns are shaped in from the start
 - **Status:** ruled 2026-10-08
@@ -123,7 +123,7 @@ Every design decision and open question, one block each.
   - Display text is looked up by locale key. The data already ships it this way: 55 locale files over the same 2,868 classes, differing only in display text (measured, see `CLAUDE.md`).
   - Number formatting lives in the view, never in the core. The core holds exact values (D-008); the view decides "88.8888" versus "88,8888".
   - Consistent with the picker: F-078 Localisation is marked *shape*.
-- **Tenancy, open:** what it means in factor is not yet defined. Puck's proposal for the minimal form: every stored plan carries an owner or workspace id, and storage is reached through that scope, even while there is only ever one value.
+- **Tenancy, ruled 2026-10-08** (Peter chose "Yes, that shape" on Puck's proposal): every stored plan carries an owner or workspace id, and storage is reached through that scope, even while there is only ever one value.
 
 ### D-032 The graphics are a view, separate from the backend
 - **Status:** ruled 2026-10-08; extends D-009, and settles the presentation boundary of D-012
@@ -141,11 +141,12 @@ Research behind these lives in `docs/research/`:
 - `calc-features.json` and `calc-tools.md`: the feature catalogue (`F-NNN`) and the tool survey behind it.
 - `data-sources-2026-10.md`: the data-sources brief, covering save parsers, missing-data sources, publisher terms and the cross-game model matrix. "Data brief §N" refers to it; its §8 decisions are mapped onto D-019 and D-025 to D-029.
 
-**Feature picker, round 1 (2026-10-08).** Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts:
+**Feature picker, round 1 (2026-10-08).** Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts, as Peter defines them: "i took skip to mean that we know about them but not right now, later is we will implement and shape was ensure it has the backend structured for it."
 - *mvp*: in the first build.
-- *shape*: the data model carries it from day one, and the behaviour comes later.
-- *later*: not now.
-- *skip*: not wanted.
+- *shape*: the backend is structured for it from the start; the feature itself comes later.
+- *later*: will be implemented, after the first build.
+- *skip*: known about, not planned now. **Not** a rejection.
+- **Superseded reading (Puck, 2026-10-08):** *skip* as "not wanted" and *later* as "not now". Wrong on both: it read his skips as refusals.
 
 A verdict is Peter's label on a catalogue row, not his words about a decision. Where a row maps to a decision below, the verdict is recorded there as evidence, and the decision stays open until he rules it.
 
@@ -246,7 +247,9 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - F-094 Game icon extraction: *mvp*
   - F-095 Resource node map: *shape*
   - F-096 Collectibles map: *shape*
-- **Puck's note:** icons at *mvp* puts the redistribution question (this decision, D-025 and D-026) inside the first build. Asking users to extract the icons themselves avoids it, but adds the D-026 Windows-install problem.
+- **Peter, 2026-10-08, asked how the first build gets icons:** "this is initially for me only, we'll need a windows build of it i guess or i can copy a save over, want to get it working first before worrying about sharing."
+- **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
+- **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
 
 ### D-020 Graph semantics: conservation and ratios, or in-game splitter behaviour
 - **Status:** open. The engine brief calls it the decision that shapes the engine most (brief §7 D1).
@@ -254,7 +257,7 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - **(a) Conservation plus fixed ratios:** a linear program, fast and well understood. *Recommended by the brief.*
   - **(b) In-game behaviour:** even splits, priority splitters, backpressure, deadlock or starvation detection. This is what Modeler's users praise **and** what makes it slow. The only route the brief found is an untested sequence of linear programs.
 - **Brief's recommendation:** (a) as the core. In-game simulation is **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan.
-- **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. That this settles D-020 has been put to Peter as a question.
+- **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. Asked whether that settles D-020, Peter chose "Not yet" (2026-10-08). That was Puck's option, worded as wanting to talk through what losing in-game splitter behaviour costs before ruling.
 
 ### D-021 Solver dependency
 - **Status:** open (brief §7 D3)

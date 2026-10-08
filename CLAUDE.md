@@ -13,7 +13,8 @@ anything. Add new questions there, never inline here. This section lists only th
 - **Platform (D-001):** Rust desktop app first. macOS now, Windows later, so nothing may rule Windows out.
 - **Desktop first (D-030):** no server side and no accounts in the first build. They are deferred, not ruled out.
 - **Shape what is hard to retrofit (D-031):** a concern that is expensive to add later gets a minimal internal
-  accommodation now. Globalisation and tenancy are the named examples.
+  accommodation now. Globalisation and tenancy are the named examples. Tenancy's form: every stored plan
+  carries an owner/workspace id, and storage is reached through that scope.
 - **Graphics are a view (D-032):** the drawing is separate from the backend and replaceable, possibly with a
   web view later.
 - **Multi-game (D-002):** the core is game-neutral, and Satisfactory is the first game, not the
