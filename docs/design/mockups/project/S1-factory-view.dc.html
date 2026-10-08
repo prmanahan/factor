@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="factor-tokens.css">
+<style>body{margin:0}a{color:var(--color-accent)}a:hover{color:var(--color-text)}</style>
+</helmet>
+<div data-theme="{{ theme }}" data-screen-label="S1 Factory view" data-artboard="S1 Factory view" style="width:100%;height:100%;display:grid;grid-template-rows:var(--size-topbar) minmax(0,1fr) var(--size-statusbar);overflow:hidden;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:var(--text-body);">
+
+  <header data-region="top-bar" style="display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-4);background:var(--color-bg-deep);border-bottom:1px solid var(--color-border-subtle);min-width:0;">
+    <div data-reserved="undo / redo, pause recalculation" title="Reserved: undo / redo, pause recalculation" style="flex:none;width:76px;height:var(--size-hit-pref);border:1px dashed var(--color-border-subtle);border-radius:var(--radius-md);"></div>
+    <div style="display:flex;align-items:baseline;gap:var(--space-3);min-width:0;">
+      <span style="font-family:var(--font-heading);font-size:var(--text-title);font-weight:600;letter-spacing:var(--ls-tight);white-space:nowrap;">Reinforced Plates</span>
+      <span data-component="save-state" style="font-size:var(--text-small);color:var(--color-text-ghost);white-space:nowrap;">Saved</span>
+    </div>
+    <span data-component="game-chip" title="Becomes the game and version menu later" style="flex:none;display:inline-flex;align-items:center;min-height:var(--size-hit);padding:0 var(--space-3);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);font-size:var(--text-small);color:var(--color-text-muted);white-space:nowrap;">Satisfactory 1.2</span>
+    <button data-component="recipes-chip" data-state="default" style="flex:none;display:inline-flex;align-items:center;gap:var(--space-3);min-height:var(--size-hit-pref);padding:0 var(--space-3);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;white-space:nowrap;" style-hover="background:var(--color-accent-tint);border-color:var(--color-accent);">
+      <span style="font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-accent);">RECIPES</span>
+      <span style="font-variant-numeric:tabular-nums;">12 of 110 alternates on</span>
+      <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);color:var(--color-text-ghost);">R</kbd>
+    </button>
+    <div style="flex:1;"></div>
+    <div data-reserved="units and precision" title="Reserved: units and precision" style="flex:none;width:132px;height:var(--size-hit-pref);border:1px dashed var(--color-border-subtle);border-radius:var(--radius-md);"></div>
+  </header>
+
+  <div style="display:grid;grid-template-columns:var(--size-rail) var(--size-targets) minmax(0,1fr) {{ inspectorCol }};min-height:0;min-width:0;">
+
+    <nav data-region="left-rail" style="display:flex;flex-direction:column;gap:var(--space-1);padding:var(--space-3) 0;background:var(--color-bg-deep);border-right:1px solid var(--color-border-subtle);">
+      <a data-component="rail-item" data-state="selected" href="#" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-1);padding:var(--space-3) var(--space-2);border-left:2px solid var(--color-accent-fill);background:var(--color-accent-tint);color:var(--color-accent);text-decoration:none;">
+        <span style="font-size:16px;line-height:1;">⚙</span>
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-tight);text-align:center;text-transform:uppercase;line-height:1.2;">Factories</span>
+      </a>
+      <a data-component="rail-item" data-state="default" href="#" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-1);padding:var(--space-3) var(--space-2);border-left:2px solid transparent;color:var(--color-text-muted);text-decoration:none;" style-hover="background:var(--color-accent-tint);color:var(--color-text);">
+        <span style="font-size:16px;line-height:1;">◆</span>
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-tight);text-align:center;text-transform:uppercase;line-height:1.2;">Codex</span>
+      </a>
+      <a data-component="rail-item" data-state="default" href="#" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-1);padding:var(--space-3) var(--space-2);border-left:2px solid transparent;color:var(--color-text-muted);text-decoration:none;" style-hover="background:var(--color-accent-tint);color:var(--color-text);">
+        <span style="font-size:16px;line-height:1;">◈</span>
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-tight);text-align:center;text-transform:uppercase;line-height:1.2;">Milestones</span>
+      </a>
+      <a data-component="rail-item" data-state="default" href="#" style="display:flex;flex-direction:column;align-items:center;gap:var(--space-1);padding:var(--space-3) var(--space-2);border-left:2px solid transparent;color:var(--color-text-muted);text-decoration:none;" style-hover="background:var(--color-accent-tint);color:var(--color-text);">
+        <span style="font-size:16px;line-height:1;">≡</span>
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-tight);text-align:center;text-transform:uppercase;line-height:1.2;">Plan summary</span>
+      </a>
+      <div data-reserved="one more rail entry" title="Reserved: one more entry" style="margin:var(--space-2) var(--space-3);height:44px;border:1px dashed var(--color-border-subtle);border-radius:var(--radius-md);"></div>
+    </nav>
+
+    <aside data-region="targets-panel" style="display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--color-surface);border-right:1px solid var(--color-border-subtle);">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:var(--space-4) var(--space-4) var(--space-3);">
+        <span style="font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-accent);">TARGETS</span>
+        <span style="font-size:var(--text-label);color:var(--color-text-ghost);">per minute</span>
+      </div>
+
+      <div data-component="target-row" data-state="default" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border-subtle);border-bottom:1px solid var(--color-border-subtle);" style-hover="background:var(--color-accent-tint);">
+        <div style="display:flex;align-items:flex-start;gap:var(--space-3);">
+          <div data-slot="item-icon" style="flex:none;width:var(--size-icon-row);height:var(--size-icon-row);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:11px;">◇</div>
+          <span style="flex:1;min-width:0;font-weight:600;line-height:var(--size-icon-row);">Reinforced Iron Plate</span>
+          <button aria-label="Remove target" title="Remove target (Delete)" style="flex:none;width:var(--size-hit);height:var(--size-hit);display:grid;place-items:center;border:1px solid transparent;border-radius:var(--radius-sm);background:transparent;color:var(--color-text-ghost);font-size:11px;cursor:pointer;" style-hover="border-color:var(--color-border-control);color:var(--color-text);">✕</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-3);padding-left:calc(var(--size-icon-row) + var(--space-3));">
+          <label data-component="rate-field" data-state="default" style="flex:none;display:flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit-pref);padding:0 var(--space-3);background:var(--color-bg);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);box-shadow:var(--shadow-inset-input);">
+            <span style="min-width:48px;text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">7.5</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">/min</span>
+          </label>
+          <button data-component="mode-select" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);min-height:var(--size-hit-pref);padding:0 var(--space-3);background:transparent;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;text-align:left;" style-hover="background:var(--color-accent-tint);border-color:var(--color-accent);">
+            <span>Exactly</span><span style="color:var(--color-text-ghost);font-size:9px;">▼</span>
+          </button>
+        </div>
+      </div>
+
+      <div style="padding:var(--space-3) var(--space-4) var(--space-4);">
+        <label data-component="add-target" data-state="focus" style="display:flex;align-items:center;gap:var(--space-3);min-height:var(--size-hit-pref);padding:0 var(--space-3);background:var(--color-bg);border:1px solid var(--color-accent);border-radius:var(--radius-sm);outline:2px solid var(--color-focus);outline-offset:2px;">
+          <span style="color:var(--color-accent);font-size:14px;line-height:1;">+</span>
+          <span style="flex:1;color:var(--color-text-ghost);">Add target</span>
+          <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);color:var(--color-text-ghost);">N</kbd>
+        </label>
+      </div>
+
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:var(--space-4) var(--space-4) var(--space-3);border-top:1px solid var(--color-border-subtle);">
+        <span style="font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-text-ghost);">SUPPLY</span>
+      </div>
+
+      <div data-component="supply-row" data-kind="free-up-to-cap" data-state="default" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border-subtle);">
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div data-slot="item-icon" style="flex:none;width:var(--size-icon-row);height:var(--size-icon-row);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:11px;">◇</div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+            <span style="font-weight:600;">Iron Ore</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Free up to cap</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-3);padding-left:calc(var(--size-icon-row) + var(--space-3));">
+          <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Cap</span>
+          <label data-component="rate-field" data-state="default" style="flex:none;display:flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit-pref);padding:0 var(--space-3);background:var(--color-bg);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);box-shadow:var(--shadow-inset-input);">
+            <span style="min-width:40px;text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">120</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">/min</span>
+          </label>
+          <span style="margin-left:auto;font-family:var(--font-mono);font-size:var(--text-small);font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">90 used</span>
+        </div>
+        <div data-component="cap-gauge" role="meter" aria-valuenow="90" aria-valuemax="120" style="margin-left:calc(var(--size-icon-row) + var(--space-3));height:4px;background:var(--color-bg);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="width:75%;height:100%;background:var(--color-accent-fill);"></div>
+        </div>
+      </div>
+
+      <div data-component="supply-row" data-kind="arrives-from-elsewhere" data-state="empty" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border-subtle);">
+        <span style="font-size:var(--text-small);color:var(--color-text-muted);">Arrives from elsewhere</span>
+        <button style="align-self:flex-start;display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit);padding:0 var(--space-3);background:transparent;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;white-space:nowrap;" style-hover="background:var(--color-accent-tint);border-color:var(--color-accent);">+ Add item with a rate</button>
+      </div>
+
+      <div data-component="supply-row" data-kind="use-exactly" data-state="empty" style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-border-subtle);">
+        <span style="font-size:var(--text-small);color:var(--color-text-muted);">Use exactly this much</span>
+        <button style="align-self:flex-start;display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit);padding:0 var(--space-3);background:transparent;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;white-space:nowrap;" style-hover="background:var(--color-accent-tint);border-color:var(--color-accent);">◉ Pin one resource</button>
+        <span style="font-size:var(--text-label);color:var(--color-text-ghost);line-height:var(--lh-tight);">Targets scale to match it.</span>
+      </div>
+    </aside>
+
+    <section data-region="canvas" style="display:grid;grid-template-rows:34px minmax(0,1fr) auto;min-width:0;min-height:0;background:var(--color-canvas);">
+      <div style="display:flex;align-items:stretch;gap:var(--space-3);padding:0 var(--space-3);border-bottom:1px solid var(--color-border-subtle);background:var(--color-bg);">
+        <span data-component="tab" data-state="selected" style="display:flex;align-items:center;padding:0 var(--space-3);border-bottom:2px solid var(--color-accent-fill);font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-accent);">DIAGRAM</span>
+        <span data-reserved="step table tab" title="Reserved: step table" style="align-self:center;width:96px;height:20px;border:1px dashed var(--color-border-subtle);border-radius:var(--radius-sm);"></span>
+        <div style="flex:1;"></div>
+        <div style="display:flex;align-items:center;gap:var(--space-2);">
+          <button aria-label="Zoom out" style="width:var(--size-hit);height:var(--size-hit);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);cursor:pointer;">−</button>
+          <span style="min-width:40px;text-align:center;font-family:var(--font-mono);font-size:var(--text-small);font-variant-numeric:tabular-nums;color:var(--color-text-muted);">{{ zoomLabel }}</span>
+          <button aria-label="Zoom in" style="width:var(--size-hit);height:var(--size-hit);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);cursor:pointer;">+</button>
+          <button style="min-height:var(--size-hit);padding:0 var(--space-3);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;display:inline-flex;align-items:center;gap:var(--space-2);">Fit <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);color:var(--color-text-ghost);">F</kbd></button>
+        </div>
+      </div>
+
+      <div data-region="diagram" style="position:relative;overflow:hidden;background-color:var(--color-canvas);background-image:radial-gradient(var(--color-canvas-dot) 1px, transparent 1.2px);background-size:16px 16px;">
+        <div data-reserved="free-hand drawing tool strip" title="Reserved: drawing tools" style="position:absolute;left:0;top:0;bottom:0;width:28px;border-right:1px dashed var(--color-border-subtle);"></div>
+
+        <div data-layer="graph" style="position:absolute;left:-10px;top:96px;width:832px;height:480px;transform-origin:0 0;transform:{{ graphTransform }};">
+          <svg width="832" height="480" viewBox="0 0 832 480" style="position:absolute;inset:0;overflow:visible;" aria-hidden="true">
+            <defs><marker id="s1arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" style="fill:var(--color-edge)"></path></marker></defs>
+            <g style="fill:none;stroke:var(--color-edge);stroke-width:1.5;">
+              <path d="M120 194 H180" marker-end="url(#s1arr)"></path>
+              <path d="M292 194 H322 V84 H352" marker-end="url(#s1arr)"></path>
+              <path d="M322 194 V304 H352" marker-end="url(#s1arr)"></path>
+              <path d="M464 304 H524" marker-end="url(#s1arr)"></path>
+              <path d="M464 84 H682 V180 H696" marker-end="url(#s1arr)"></path>
+              <path d="M636 304 H664 V208 H696" marker-end="url(#s1arr)"></path>
+              <path d="M808 194 H826" marker-end="url(#s1arr)"></path>
+            </g>
+          </svg>
+
+          <span data-component="edge-label" style="position:absolute;left:150px;top:194px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">90/min</span>
+          <span data-component="edge-label" style="position:absolute;left:322px;top:139px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">67.5/min</span>
+          <span data-component="edge-label" style="position:absolute;left:322px;top:249px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">22.5/min</span>
+          <span data-component="edge-label" style="position:absolute;left:494px;top:304px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">22.5/min</span>
+          <span data-component="edge-label" style="position:absolute;left:580px;top:84px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">45/min</span>
+          <span data-component="edge-label" style="position:absolute;left:664px;top:256px;transform:translate(-50%,-50%);padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">90/min</span>
+
+          <div data-component="resource-node" data-state="default" style="position:absolute;left:40px;top:150px;width:80px;box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border:1px dashed var(--color-border-control);border-radius:var(--radius-md);">
+            <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Iron Ore</span>
+            <span style="font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;color:var(--color-text-ghost);">cap 120</span>
+          </div>
+
+          <div data-component="node" data-state="default" style="position:absolute;left:180px;top:132px;width:var(--size-node);box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border:1px solid var(--color-border-control);border-top:2px solid var(--color-accent-fill);border-radius:var(--radius-md);box-shadow:var(--shadow-node);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+              <span style="font-family:var(--font-mono);font-size:var(--text-title);font-weight:600;font-variant-numeric:tabular-nums;">x3</span>
+            </div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Iron Ingot</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Smelter</span>
+            <div style="display:flex;flex-direction:column;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;">
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">clk</span><span>100.0000%</span></span>
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">pwr</span><span>12.00 MW</span></span>
+            </div>
+          </div>
+
+          <div data-component="node" data-state="default" style="position:absolute;left:352px;top:22px;width:var(--size-node);box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border:1px solid var(--color-border-control);border-top:2px solid var(--color-accent-fill);border-radius:var(--radius-md);box-shadow:var(--shadow-node);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+              <span style="font-family:var(--font-mono);font-size:var(--text-title);font-weight:600;font-variant-numeric:tabular-nums;">x3</span>
+            </div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Iron Plate</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Constructor</span>
+            <div style="display:flex;flex-direction:column;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;">
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">clk</span><span>75.0000%</span></span>
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">pwr</span><span>8.20 MW</span></span>
+            </div>
+          </div>
+
+          <div data-component="node" data-state="default" style="position:absolute;left:352px;top:242px;width:var(--size-node);box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border:1px solid var(--color-border-control);border-top:2px solid var(--color-accent-fill);border-radius:var(--radius-md);box-shadow:var(--shadow-node);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+              <span style="font-family:var(--font-mono);font-size:var(--text-title);font-weight:600;font-variant-numeric:tabular-nums;">x2</span>
+            </div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Iron Rod</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Constructor</span>
+            <div style="display:flex;flex-direction:column;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;">
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">clk</span><span>75.0000%</span></span>
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">pwr</span><span>5.47 MW</span></span>
+            </div>
+          </div>
+
+          <div data-component="node" data-state="default" style="position:absolute;left:524px;top:242px;width:var(--size-node);box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface);border:1px solid var(--color-border-control);border-top:2px solid var(--color-accent-fill);border-radius:var(--radius-md);box-shadow:var(--shadow-node);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+              <span style="font-family:var(--font-mono);font-size:var(--text-title);font-weight:600;font-variant-numeric:tabular-nums;">x3</span>
+            </div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Screw</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Constructor</span>
+            <div style="display:flex;flex-direction:column;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;">
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">clk</span><span>75.0000%</span></span>
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">pwr</span><span>8.20 MW</span></span>
+            </div>
+          </div>
+
+          <div data-component="node" data-state="selected" style="position:absolute;left:696px;top:132px;width:var(--size-node);box-sizing:border-box;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-1);background:var(--color-surface-high);border:2px solid var(--color-accent);border-radius:var(--radius-md);box-shadow:var(--shadow-node);">
+            <span data-component="target-tag" style="position:absolute;left:-2px;top:-22px;font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-accent);white-space:nowrap;">◎ TARGET</span>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div data-slot="item-icon" style="width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+              <span style="font-family:var(--font-mono);font-size:var(--text-title);font-weight:600;font-variant-numeric:tabular-nums;">x2</span>
+            </div>
+            <span style="font-weight:600;line-height:var(--lh-tight);">Reinforced Iron Plate</span>
+            <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Assembler</span>
+            <div style="display:flex;flex-direction:column;margin-top:var(--space-2);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:var(--text-label);font-variant-numeric:tabular-nums;">
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">clk</span><span>75.0000%</span></span>
+              <span style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-ghost);">pwr</span><span>20.50 MW</span></span>
+            </div>
+          </div>
+          <span data-component="edge-label" style="position:absolute;left:696px;top:282px;padding:0 3px;background:var(--color-canvas);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10.5px;line-height:15px;font-variant-numeric:tabular-nums;color:var(--color-text-muted);white-space:nowrap;">out 7.5/min</span>
+        </div>
+
+        <div style="position:absolute;right:var(--space-4);bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-3);font-size:var(--text-label);color:var(--color-text-ghost);white-space:nowrap;">
+          <span>Arrows move between nodes</span>
+          <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);">← → ↑ ↓</kbd>
+        </div>
+      </div>
+
+      <div data-component="problems-strip" data-state="empty" style="display:flex;align-items:center;gap:var(--space-3);min-height:36px;padding:0 var(--space-4);background:var(--color-bg);border-top:1px solid var(--color-border-subtle);">
+        <span style="font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-text-ghost);">PROBLEMS</span>
+        <span style="display:inline-flex;align-items:center;gap:var(--space-2);color:var(--color-ok);"><span aria-hidden="true">✓</span>No problems</span>
+      </div>
+    </section>
+
+    <sc-if value="{{ inspectorOpen }}" hint-placeholder-val="{{ true }}">
+    <aside data-region="inspector" data-state="node-selected" style="display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--color-surface);border-left:1px solid var(--color-border-subtle);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border-subtle);">
+        <span style="font-family:var(--font-heading);font-size:var(--text-label);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-text-ghost);">INSPECTOR</span>
+        <button aria-label="Collapse inspector" title="Collapse (])" style="width:var(--size-hit);height:var(--size-hit);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text-muted);cursor:pointer;">›</button>
+      </div>
+      <div style="display:flex;gap:var(--space-3);padding:var(--space-4);">
+        <div data-slot="item-icon" style="flex:none;width:var(--size-icon-node);height:var(--size-icon-node);display:grid;place-items:center;background:var(--color-icon-slot);border:1px dashed var(--color-border-control);border-radius:var(--radius-sm);color:var(--color-text-ghost);font-size:14px;">◇</div>
+        <div style="display:flex;flex-direction:column;min-width:0;">
+          <span style="font-size:var(--text-title);font-weight:600;line-height:var(--lh-tight);">Reinforced Iron Plate</span>
+          <span style="font-size:var(--text-small);color:var(--color-text-ghost);">Assembler · 2 machines</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);padding:0 var(--space-4) var(--space-4);">
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-text-ghost);">RECIPE</span>
+        <div style="display:flex;gap:var(--space-2);">
+          <span style="flex:1;min-width:0;display:flex;align-items:center;min-height:var(--size-hit-pref);padding:0 var(--space-3);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);">Reinforced Iron Plate</span>
+          <button data-component="button" style="flex:none;display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit-pref);padding:0 var(--space-3);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);font:inherit;font-size:var(--text-small);cursor:pointer;" style-hover="background:var(--color-accent-tint);border-color:var(--color-accent);">Swap <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);color:var(--color-text-ghost);">S</kbd></button>
+        </div>
+        <span style="font-size:var(--text-label);color:var(--color-text-ghost);">3 alternates make this item · 0 on</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-4);border-top:1px solid var(--color-border-subtle);">
+        <div data-component="inspector-field" data-source="factor" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-1) var(--space-3);">
+          <span style="font-size:var(--text-small);color:var(--color-text-muted);">Machines</span>
+          <label style="display:flex;align-items:center;min-height:var(--size-hit-pref);padding:0 var(--space-3);background:var(--color-bg);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);box-shadow:var(--shadow-inset-input);"><span style="min-width:72px;text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">2</span></label>
+          <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Set by factor</span>
+          <button style="justify-self:end;display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit);padding:0 var(--space-2);border:1px solid transparent;border-radius:var(--radius-sm);background:transparent;color:var(--color-accent);font:inherit;font-size:var(--text-label);cursor:pointer;white-space:nowrap;" style-hover="border-color:var(--color-border-control);">◉ Pin <kbd style="font-family:var(--font-mono);font-size:var(--text-micro);line-height:14px;padding:0 4px;border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);color:var(--color-text-ghost);">P</kbd></button>
+        </div>
+        <div data-component="inspector-field" data-source="factor" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-1) var(--space-3);">
+          <span style="font-size:var(--text-small);color:var(--color-text-muted);">Clock</span>
+          <label style="display:flex;align-items:center;gap:var(--space-2);min-height:var(--size-hit-pref);padding:0 var(--space-3);background:var(--color-bg);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);box-shadow:var(--shadow-inset-input);"><span style="min-width:60px;text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">75.0000</span><span style="font-size:var(--text-label);color:var(--color-text-ghost);">%</span></label>
+          <span style="font-size:var(--text-label);color:var(--color-text-ghost);">Set by factor · same for all</span>
+          <span data-component="exact-fraction" style="justify-self:end;font-family:var(--font-mono);font-size:var(--text-small);font-variant-numeric:tabular-nums;color:var(--color-text-muted);">= 3/4</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-3);">
+          <span style="font-size:var(--text-small);color:var(--color-text-muted);">Power shards</span>
+          <div data-component="stepper" style="display:flex;align-items:center;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);">
+            <button aria-label="Fewer" style="width:var(--size-hit-pref);height:var(--size-hit-pref);border:0;background:transparent;color:var(--color-text-ghost);cursor:pointer;">−</button>
+            <span style="min-width:44px;text-align:center;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">0 / 3</span>
+            <button aria-label="More" style="width:var(--size-hit-pref);height:var(--size-hit-pref);border:0;background:transparent;color:var(--color-text);cursor:pointer;">+</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-3);">
+          <span style="font-size:var(--text-small);color:var(--color-text-muted);">Somersloops</span>
+          <div data-component="stepper" style="display:flex;align-items:center;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);">
+            <button aria-label="Fewer" style="width:var(--size-hit-pref);height:var(--size-hit-pref);border:0;background:transparent;color:var(--color-text-ghost);cursor:pointer;">−</button>
+            <span style="min-width:44px;text-align:center;font-family:var(--font-mono);font-variant-numeric:tabular-nums;">0 / 2</span>
+            <button aria-label="More" style="width:var(--size-hit-pref);height:var(--size-hit-pref);border:0;background:transparent;color:var(--color-text);cursor:pointer;">+</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:var(--text-small);color:var(--color-text-muted);">Power</span>
+          <span style="font-family:var(--font-mono);font-variant-numeric:tabular-nums;">20.50 MW <span style="color:var(--color-text-ghost);font-size:var(--text-label);">2 × 10.25</span></span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);padding:var(--space-4);border-top:1px solid var(--color-border-subtle);font-variant-numeric:tabular-nums;">
+        <span style="font-family:var(--font-heading);font-size:var(--text-micro);font-weight:600;letter-spacing:var(--ls-caps);color:var(--color-text-ghost);">FLOWS</span>
+        <div style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--space-1) var(--space-3);font-size:var(--text-small);">
+          <span style="color:var(--color-text-ghost);">in</span><span>Iron Plate</span><span style="font-family:var(--font-mono);text-align:right;">45/min</span>
+          <span style="color:var(--color-text-ghost);">in</span><span>Screw</span><span style="font-family:var(--font-mono);text-align:right;">90/min</span>
+          <span style="color:var(--color-text-ghost);">out</span><span>Reinforced Iron Plate</span><span style="font-family:var(--font-mono);text-align:right;">7.5/min</span>
+        </div>
+        <div data-placeholder="physical layer" style="display:flex;flex-direction:column;gap:var(--space-1);margin-top:var(--space-2);padding:var(--space-2) var(--space-3);border:1px dashed var(--color-placeholder);border-radius:var(--radius-sm);">
+          <span style="font-family:var(--font-mono);font-size:var(--text-micro);color:var(--color-placeholder);">PLACEHOLDER: physical layer (ports, belt caps undecided)</span>
+          <span style="font-size:var(--text-small);">Screw in: 1 x Belt Mk.2</span>
+        </div>
+      </div>
+      <div data-reserved="research levels, modules / beacons" title="Reserved: research levels, modules and beacons" style="margin:0 var(--space-4) var(--space-4);height:40px;border:1px dashed var(--color-border-subtle);border-radius:var(--radius-md);"></div>
+    </aside>
+    </sc-if>
+    <sc-if value="{{ inspectorClosed }}" hint-placeholder-val="{{ false }}">
+    <aside data-region="inspector" data-state="collapsed" style="display:flex;flex-direction:column;align-items:center;padding-top:var(--space-3);background:var(--color-surface);border-left:1px solid var(--color-border-subtle);">
+      <button aria-label="Open inspector" title="Open inspector (])" style="width:var(--size-hit);height:var(--size-hit);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:transparent;color:var(--color-text-muted);cursor:pointer;">‹</button>
+    </aside>
+    </sc-if>
+  </div>
+
+  <footer data-region="status-bar" style="display:flex;align-items:center;gap:var(--space-5);padding:0 var(--space-4);background:var(--color-bg-deep);border-top:1px solid var(--color-border-subtle);font-size:var(--text-label);color:var(--color-text-muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;">
+    <span>Power <span style="font-family:var(--font-mono);color:var(--color-text);">54.37 MW</span> avg · <span style="font-family:var(--font-mono);color:var(--color-text);">54.37 MW</span> peak</span>
+    <span><span style="font-family:var(--font-mono);color:var(--color-text);">13</span> buildings</span>
+    <span style="color:var(--color-ok);">✓ <span style="font-family:var(--font-mono);">0</span> problems</span>
+    <div style="flex:1;"></div>
+    <span>Solved in <span style="font-family:var(--font-mono);color:var(--color-text);">4 ms</span></span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark' | 'light'&quot;},&quot;inspectorOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;zoom&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:0.5,&quot;max&quot;:1.5,&quot;step&quot;:0.01,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme ?? 'dark';
+    const inspectorOpen = this.props.inspectorOpen ?? true;
+    const zoom = this.props.zoom ?? 1;
+    return {
+      theme, inspectorOpen, inspectorClosed: !inspectorOpen,
+      inspectorCol: inspectorOpen ? 'var(--size-inspector)' : '32px',
+      zoomLabel: Math.round(zoom * 100) + '%',
+      graphTransform: 'scale(' + zoom + ')'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -302,8 +302,8 @@ placeholder glyph, and make sure the layout works with any icon. Never use copie
   at 88.8888% (8/9) and everything downstream scales; Reinforced Iron Plate makes 6.6667/min and is
   0.8333/min short of the 7.5/min target, limited by the Iron Ore cap. The Problems strip names this with
   buttons that state the number they will set ("Raise Iron Ore cap to 90/min", "Lower the target to
-  6.6667/min"). Show a node the user pinned to a fixed machine count (4 Iron Plate constructors at 56.2500%,
-  9/16), an unhandled byproduct node (a Plastic refinery with 10/min Heavy Oil Residue not going anywhere, with
+  6.6667/min"). Show a node the user pinned to a fixed machine count (4 Iron Plate constructors at 50.0000%,
+  1/2, because the 80/min ore cap leaves plates 40/min), an unhandled byproduct node (a Plastic refinery with 10/min Heavy Oil Residue not going anywhere, with
   actions: feed back, send to the AWESOME Sink, leave flagged), and a "re-solving" state where the previous
   diagram stays visible but dimmed. Problems must show as icon plus word plus position, never only colour.
 - **S3 Recipes and rules drawer.** Opens from a "Recipes" chip in the top bar that shows a summary such as "12
