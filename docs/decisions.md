@@ -39,6 +39,7 @@ Every design decision and open question, one block each.
 - **Peter, on runtime loading over compiled-in source:** "i agree with your lean and is how i approached this initially"
 - **Outcome:** each game gets a generator that reads that game's resources and emits data files. The app loads those files at runtime into a strongly typed Rust model, with validation at load.
 - **Rejected:** generated Rust source compiled into the app. Every patch, new game or mod pack would mean a rebuild, and modded recipes couldn't be loaded.
+- **Peter, 2026-10-08, picker note on F-043:** "when we say hard coded we mean in the schema the model uses correct? not hard constants in the rust code". **Puck's answer, which follows from this ruling:** yes. Game numbers missing from the bundle, such as the purity multipliers, go into a per-game data file that loads like the rest, never into Rust constants.
 - **Puck's reading, not confirmed:** "your lean" is taken to mean the runtime-data option, since that was the lean Puck had stated.
 
 ### D-004 Raw game bundle stays out of git
@@ -153,7 +154,7 @@ Research behind these lives in `docs/research/`:
 - `calc-features.json` and `calc-tools.md`: the feature catalogue (`F-NNN`) and the tool survey behind it.
 - `data-sources-2026-10.md`: the data-sources brief, covering save parsers, missing-data sources, publisher terms and the cross-game model matrix. "Data brief §N" refers to it; its §8 decisions are mapped onto D-019 and D-025 to D-029.
 
-**Feature picker, round 1 (2026-10-08).** Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts, as Peter defines them: "i took skip to mean that we know about them but not right now, later is we will implement and shape was ensure it has the backend structured for it."
+**Feature picker, rounds 1 and 2 (2026-10-08).** In round 2 Peter marked against Puck's suggestions, which are kept in the separate `suggest` collection. All 142 rows now carry his verdict; he and Puck still differ on F-049, F-070, F-090, F-096 and F-141, and his verdict stands on each. Peter marked the catalogue in the picker Artifact (https://claude.ai/artifact/J15Nsun9doxDoF6ewfuHZH); the marks live in its `picks` collection. Verdicts, as Peter defines them: "i took skip to mean that we know about them but not right now, later is we will implement and shape was ensure it has the backend structured for it."
 - *mvp*: in the first build.
 - *shape*: the backend is structured for it from the start; the feature itself comes later.
 - *later*: will be implemented eventually, not immediately. Peter: "later means eventually not immeduately".
@@ -244,7 +245,8 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 ### D-018 Raw resources: free up to a cap, or must be sourced
 - **Status:** open
 - **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
-- **Picker, 2026-10-08:** F-046 has no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
+- **Picker, round 2 (2026-10-08):** F-046 marked *shape*, after reading Puck's lean: extraction is modelled as a recipe with no inputs, and the screen defaults to "free up to a cap". Whether that rules D-018 has been put to Peter as a question.
+- **Picker, round 1:** F-046 had no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
 
 ### D-019 Icons and map data: source and redistribution
 - **Status:** open
@@ -258,7 +260,8 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **Picker verdicts, 2026-10-08:**
   - F-094 Game icon extraction: *mvp*
   - F-095 Resource node map: *shape*
-  - F-096 Collectibles map: *shape*
+  - F-096 Collectibles map: *shape*, kept in round 2 over Puck's *skip*. Peter's note: "my primary use case for use case for sat calc is the map with the collectable, i even load my save to see what i missed and where things are. So to me this is core, but it can be after the planning part."
+  - So collectibles matter to Peter, after planning, and they come with loading his save. That puts the save parser, which hangs on the licence decision (D-025), and randomised worlds (D-027) on the map's path.
 - **Peter, 2026-10-08, asked how the first build gets icons:** "this is initially for me only, we'll need a windows build of it i guess or i can copy a save over, want to get it working first before worrying about sharing."
 - **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
 - **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
@@ -347,6 +350,7 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - A per-machine modifier slot appears in 4 of 6 games, one short of the bar. The data brief suggests it as a core *hook*, not core data.
   - Alchemy Factory's value-based cauldron recipes (447,580 combinations) can't be listed as Formulas.
   - Power as a generic per-game "utility resource" (heat in Alchemy Factory).
+  - Currency as a resource. Peter, 2026-10-08, on F-062 AWESOME Sink: "the tickets/points are a kind of coin as well." Satisfactory's sink points join Alchemy Factory's money as a second currency-like case.
 - **Vocabulary check (D-011):**
   - `Unit` and `Fabricator` hold.
   - `Formula` needs flags (such as cost-multiplier exemption) plus conversion of batch multipliers and catalyst charges.
@@ -354,3 +358,17 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **Prior art:** FactorioLab (MIT) already serves more than ten games from one schema, and puts purity, Somersloops, the proliferator and Foundry's robots under a single "module" idea with per-game flags. Compare against it before designing.
 - **Supports D-014:** Factorio and Foundry measure wagon capacity in stacks, which backs the slots × stack-size proposal.
 
+### D-033 Plan file format
+- **Status:** open
+- **Peter, 2026-10-08, picker note on F-129 File export and import:** "not json please."
+- **Context:** F-129 is now *mvp*: on desktop a saved plan is a file, so saving is export. The format needs a version field from day one. Peter has ruled out JSON; why is not recorded yet.
+- **Options (Puck, not ruled):**
+  - **TOML:** human-readable and diffable, and already Rust's own config language. Gets awkward for deeply nested graphs.
+  - **RON (Rust Object Notation):** maps one-to-one onto Rust types, and allows comments and trailing commas. Little used outside Rust.
+  - **Binary (postcard or bincode) plus a text export:** compact and fast on large factories, but not readable by hand.
+  - **SQLite:** one file per plan or a library of plans; queryable, and transactional saves. The heaviest option.
+
+### D-034 Interface over tutorials
+- **Status:** open (Peter's hedged view, recorded for discussion)
+- **Peter, 2026-10-08, picker note on F-081 Guided tutorial and demo plans:** "i will say i saw satisfactory logistics demo/walkthrough. if the interface is bad enough you need that i think maybe making a better interface if possible. or incrementally add advanced options"
+- **Puck's reading, not ruled:** prefer an interface that needs no walkthrough, with advanced options revealed step by step (progressive disclosure). A shipped demo plan is a separate thing from a walkthrough: an example factory to open, and one that doubles as a test fixture.
