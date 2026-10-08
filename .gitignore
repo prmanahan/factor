@@ -2,3 +2,6 @@
 # Copy CommunityResources.zip from the game install into resources/ and expand it (see CLAUDE.md).
 /resources/CommunityResources.zip
 /resources/CommunityResources/
+
+# Harness worktrees live inside the checkout; never track them.
+/.claude/worktrees/
