@@ -131,6 +131,18 @@ Every design decision and open question, one block each.
 - **Outcome:** the drawing is a view over the backend and can be replaced without touching it. A web-based view is named as a possible future.
 - **Puck's derivation, not ruled:** for a web view to be swappable in, the view-to-backend boundary has to be a data interface (requests and results that can be serialised), not shared in-process state. Building the desktop view against that interface from the start is what keeps the swap cheap.
 
+### D-020 Graph semantics: conservation and ratios, or in-game splitter behaviour
+- **Status:** ruled 2026-10-08. The engine brief calls it the decision that shapes the engine most (brief §7 D1).
+- **Peter:** "go ahead with ideal ratios, jams check later"
+- **Outcome:** option (a). The core solves conservation plus ideal ratios as a linear program. In-game behaviour comes back as a separate check over a solved plan: loops that back up and jam, and which machines starve under even or priority splitters when supply is short. That check is tracked as brain task #3924, so it is deferred with a tracked task, not parked.
+- **What was weighed (Puck's summary given to Peter before the ruling):** ideal ratios lose (1) ratios the game's even splitters can't build, which matters little on a saturated manifold, per D-005; (2) which machines starve when under-supplied; (3) jams in recycling loops, the real loss. They keep sub-millisecond whole-game solves.
+- **Rejected:** (b) in-game behaviour in the core. It is Modeler's approach and the cause of its slowness (D-017 research).
+- **Options:**
+  - **(a) Conservation plus fixed ratios:** a linear program, fast and well understood. *Recommended by the brief.*
+  - **(b) In-game behaviour:** even splits, priority splitters, backpressure, deadlock or starvation detection. This is what Modeler's users praise **and** what makes it slow. The only route the brief found is an untested sequence of linear programs.
+- **Brief's recommendation:** (a) as the core. In-game simulation would be **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan. (Superseded by the ruling: Peter wants the check, so it is now a tracked task.)
+- **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. Asked whether that settles D-020, Peter chose "Not yet" (2026-10-08). That was Puck's option, worded as wanting to talk through what losing in-game splitter behaviour costs before ruling.
+
 ---
 
 ## Open
@@ -250,14 +262,6 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **Peter, 2026-10-08, asked how the first build gets icons:** "this is initially for me only, we'll need a windows build of it i guess or i can copy a save over, want to get it working first before worrying about sharing."
 - **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
 - **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
-
-### D-020 Graph semantics: conservation and ratios, or in-game splitter behaviour
-- **Status:** open. The engine brief calls it the decision that shapes the engine most (brief §7 D1).
-- **Options:**
-  - **(a) Conservation plus fixed ratios:** a linear program, fast and well understood. *Recommended by the brief.*
-  - **(b) In-game behaviour:** even splits, priority splitters, backpressure, deadlock or starvation detection. This is what Modeler's users praise **and** what makes it slow. The only route the brief found is an untested sequence of linear programs.
-- **Brief's recommendation:** (a) as the core. In-game simulation is **parked**, not deferred, because nothing would trigger it automatically. It returns only if Peter decides the diagram must flag in-game deadlocks, and then as a separate analysis pass over a solved plan.
-- **Picker, 2026-10-08:** F-004 Splitter/merger behaviour simulation marked *later*, not *skip*. Puck's reading, not ruled: (a) now, with simulation as a later pass, which is the brief's shape. Asked whether that settles D-020, Peter chose "Not yet" (2026-10-08). That was Puck's option, worded as wanting to talk through what losing in-game splitter behaviour costs before ruling.
 
 ### D-021 Solver dependency
 - **Status:** open (brief §7 D3)

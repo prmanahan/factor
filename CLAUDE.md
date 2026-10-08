@@ -28,6 +28,8 @@ anything. Add new questions there, never inline here. This section lists only th
 - **Power and modifiers follow per-game curves (D-007), and clocks are continuous and exact (D-008):**
   load is spread evenly across whole machines, and clock values are ones the game accepts, to 4
   decimal places.
+- **Graph semantics (D-020):** the core solves conservation plus ideal ratios as a linear program. In-game
+  jams and starvation are a separate check over a solved plan, later (brain #3924).
 - **Calculation is separate from layout and drawing (D-009).** D-032 extends this: the drawing is a replaceable view.
 - **Tracking (D-010):** decisions go in `docs/decisions.md`, and work goes in brain project `factor` (id 40).
 
