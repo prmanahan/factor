@@ -5,3 +5,6 @@
 
 # Harness worktrees live inside the checkout; never track them.
 /.claude/worktrees/
+
+# macOS Finder metadata
+.DS_Store
