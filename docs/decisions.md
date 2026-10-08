@@ -169,7 +169,7 @@ Every design decision and open question, one block each.
     - 300 coupled factory copies (141,600 columns) with binding resource caps: about 666 ms.
   - **Proving a model infeasible is the slow case:** 8.9 s, against 0.47 s for a feasible one (Sage, not re-run).
   - **Modeler is slow because of its semantics, not its solver** (observed, from its 2025-03-26 devlog). It simulates in-game splitter and merger behaviour, and its own manual calculators "always run quickly". That makes D-020 the deciding question.
-- **Still unanswered:** what "isn't structured how i like" means: factory organisation (sub-factories, hierarchy) or tool workflow.
+- **Answered 2026-10-08:** asked what "isn't structured how i like" meant, Peter chose two of Puck's options: "Factory organisation" (how factories, sub-factories and outposts nest and link) and "Interface and layout". He did not choose "Drawing it all by hand" or "Speed only". Factory organisation is open as D-035.
 
 ### D-018 Raw resources: free up to a cap, or must be sourced
 - **Status:** ruled 2026-10-08, via the option "Yes, rule it"
@@ -244,6 +244,12 @@ Every design decision and open question, one block each.
   - user-tunable, as in FactorioLab.
 - Each option changes which alternate recipes the plan picks.
 - **Related:** the brief recommends an *elastic* model by default. Every item gets penalised surplus, import and "can't produce" slack, so a plan always comes back with its problems named, never a bare "infeasible". IIS stays a developer tool. That elastic default was part of the option Peter chose.
+
+### D-024 "Plan to targets" and "the graph I drew": one view or two
+- **Status:** ruled 2026-10-08 (brief §7 D6), via the option "One view, edit feeds back"
+- **Outcome:** one view. Peter sets targets and factor lays out the diagram. Editing the diagram (pin a recipe on a node, fix a machine count, cap an input) becomes a constraint and triggers a re-solve. Free-hand, Modeler-style drawing comes later on the same engine (picker F-003 *shape*).
+- **Not selected:** two views from the start (a targets table plus a free canvas), and canvas-first like Modeler.
+- **Context:** YAFC's linked tables, Foreman2's nodes and Modeler's canvases are three interaction models over the same linear program. The brief's proposed engine shape compiles both front ends to one solver layer (brief §6).
 
 ---
 
@@ -322,10 +328,6 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
 - **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
 
-### D-024 "Plan to targets" and "the graph I drew": one view or two
-- **Status:** open (brief §7 D6)
-- **Context:** YAFC's linked tables, Foreman2's nodes and Modeler's canvases are three interaction models over the same linear program. The brief's proposed engine shape compiles both front ends to one solver layer (brief §6).
-
 ### D-025 factor's own licence
 - **Status:** open (data brief §8.1)
 - **Context:**
@@ -387,3 +389,16 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - `GlobalModifiers` breaks, since most modifiers are per machine, some act on belts or fuel, and DSP's proliferator is an input.
 - **Prior art:** FactorioLab (MIT) already serves more than ten games from one schema, and puts purity, Somersloops, the proliferator and Foundry's robots under a single "module" idea with per-game flags. Compare against it before designing.
 - **Supports D-014:** Factorio and Foundry measure wagon capacity in stacks, which backs the slots × stack-size proposal.
+
+### D-035 Factory organisation
+- **Status:** open
+- **Context:** one of the two things Peter dislikes about Modeler's structure (D-017, answered 2026-10-08): how factories, sub-factories and outposts nest and link in a big build. The other was its interface and layout.
+- **Picker marks:**
+  - F-053 Multiple factories per plan: *mvp*
+  - F-054 Nested sub-plans: *mvp*
+  - F-056 Spin off a sub-chain: *mvp*
+  - F-055 Factory groups with rollups: *shape*
+  - F-057 Plan statistics and building summary: *mvp*
+  - F-067 Notes and tasks per factory: *mvp*
+- **Prior art (tool survey, `docs/research/calc-tools.md`):** Modeler nests outposts as sub-canvases, and reuses blueprints as sub-modules with limits. Satisfactory Factories keeps a ledger of up to 300 factories with imports and exports between them, plus groups with rollups. Satisfactory Logistics links factories through tracked inputs and outputs.
+- **Questions to settle:** what a factory is in the model (a solve boundary or only a grouping); how flows between factories are represented (as transport, D-006); how deep nesting goes; and how a spun-off sub-chain stays linked to its parent.

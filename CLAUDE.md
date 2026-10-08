@@ -38,6 +38,8 @@ anything. Add new questions there, never inline here. This section lists only th
   - The default objective is least raw resources weighted by scarcity, with fewer buildings as the
     tie-break. The weights are tunable under advanced options. The formulation is elastic, so problems
     are named, never a bare "infeasible".
+- **One view (D-024):** set targets and factor lays out the diagram. Edits to the diagram become constraints
+  and re-solve. Free-hand drawing comes later on the same engine.
 - **Raw resources (D-018):** extraction is a recipe with no inputs in the model; the screen defaults to "free up
   to a cap" until sourcing is turned on.
 - **Plan files are SQLite (D-033):** a documented schema, and the way to get text out is a reader, not a
