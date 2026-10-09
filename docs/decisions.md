@@ -83,7 +83,7 @@ Every design decision and open question, one block each.
   - A clock shown to the user is a value the game accepts, to 4 decimal places.
 - **Puck's derivation, not ruled:**
   - Arithmetic uses exact fractions (8/9, not a float).
-  - Rounding never overdraws a limited input, so it rounds down when input-limited.
+  - Rounding never overdraws a limited input, so it rounds down when input-limited. **Superseded for display, 2026-10-08:** Peter: "i'll point out that in game the value is rounded to nearest, so i think consistent with the game is the correct answer, this might be a useful config option to think about." Display rounds to nearest, like the game; exact values stay internal, and truncation is an idea for a setting (product brief SC-4).
 
 ### D-009 What a machine computes is separate from how it is laid out and drawn
 - **Status:** ruled 2026-10-05; the layer split is open (D-012)
@@ -125,6 +125,8 @@ Every design decision and open question, one block each.
   - Display text is looked up by locale key. The data already ships it this way: 55 locale files over the same 2,868 classes, differing only in display text (measured, see `CLAUDE.md`).
   - Number formatting lives in the view, never in the core. The core holds exact values (D-008); the view decides "88.8888" versus "88,8888".
   - Consistent with the picker: F-078 Localisation is marked *shape*.
+- **Globalisation scope, ruled 2026-10-08** (product brief HC-7; Peter chose "Left-to-right only for now"): left-to-right scripts, including Chinese, Japanese and Hindi, are shaped in; right-to-left scripts are out of scope until a real need appears.
+- **Accessibility added to the list, 2026-10-08** (product brief HC-10; Peter chose "Shape now, enforce on share"). Now: the toolkit can expose factor to a screen reader, every action is reachable by keyboard, and contrast is checked. The full floor is the release gate when anyone other than Peter first runs a build (Gate B, product brief HC-11).
 - **Tenancy, ruled 2026-10-08** (Peter chose "Yes, that shape" on Puck's proposal): every stored plan carries an owner or workspace id, and storage is reached through that scope, even while there is only ever one value.
 
 ### D-032 The graphics are a view, separate from the backend
@@ -158,7 +160,7 @@ Every design decision and open question, one block each.
 - **Related features:** F-001 to F-005 in the feature catalogue are the five calculation models found in existing tools.
 - **Picker verdicts, 2026-10-08:**
   - F-001 LP auto-solve to target rates: *mvp*
-  - F-002 Recursive tree expansion: *later*
+  - F-002 Recursive tree expansion: *later* in round 1, changed to *skip* in round 2 (after Puck's suggestion that the solver covers it)
   - F-003 Manual node graph with rate propagation: *shape*
   - F-004 Splitter/merger behaviour simulation: *later* (bears on D-020)
   - F-005 Manual ledger with satisfy/trim sizing: *later*
@@ -177,6 +179,9 @@ Every design decision and open question, one block each.
 - **Context:** feature F-046. Most optimisers assume raw supply is free up to a cap. One tool (Satisfactory Factories) made "must be mined or imported" a deliberate breaking change. The choice changes how many other features read.
 - **Picker, round 2 (2026-10-08):** F-046 marked *shape*, after reading Puck's lean: extraction is modelled as a recipe with no inputs, and the screen defaults to "free up to a cap".
 - **Picker, round 1:** F-046 had no verdict. Peter's note: "need to understand the ramifications of this one. seems all the games have to be mined, factorio has limited supply, what does this option provide of value"
+- **Amended 2026-10-08.** Relayed from the design session, then confirmed by Peter in the lead session (round-5 review of the product brief): "Yes, each resource node can only have one miner on it. So to get past the cap you need inputs from multiple resource nodes." On the ore default, Peter picked "Miner sets the cap": every raw resource names its extractor and node attributes (purity), and its ceiling is derived from them, never typed. Peter, verbatim as relayed: "a miner has a default clock of 100% and on a normal node that means 120/min. If i add three shards that is 250% of the 120, so 300. Additionally i can unclock as well, so the actual cap is 300 in this case and I can change that value from 0-300 manually to a percentage. So 75% would be 90." And, on miner and purity: "factor picks a default and i can change it if needed". On why ore would fall short: "The only way an ore falls short is if the miner has no power, it turned off, or is clocked below what is required downstream?"
+  - **F-009 Per-resource caps, re-described (round-6 review, 2026-10-08):** Peter chose "Cap = pinned extractor clock". There is no separate typed cap: a resource is limited by pinning its extractor's clock, for example 2/3 of a Mk.2 on a Normal node is 80/min.
+  - **Effect on the Outcome above:** the screen no longer defaults to a typed "free up to a cap". The cap is the extractor's derived ceiling, and a shortfall comes from a pinned extractor clock. Measured miner data (en-US.json, relayed): Mk.1 60/min at 5 MW, Mk.2 120/min at 15 MW, Mk.3 240/min at 45 MW; exponent 1.321929. The purity multipliers (×0.5 / ×1 / ×2) are game knowledge, not in the data.
 
 ### D-034 Interface over tutorials
 - **Status:** ruled 2026-10-08, via the option "Yes, as stated"
@@ -200,6 +205,10 @@ Every design decision and open question, one block each.
 ### D-016 Nonlinear power and clocks in the solver
 - **Status:** ruled 2026-10-08, via the option "Fix clock, then size"
 - **Outcome:** option (c), the brief's option A. Rates are solved exactly as a linear program. Whole machines are chosen afterwards, by fewest buildings or a count Peter sets, with clock = rate ÷ (count × base), exact. Power is computed from the per-game curve afterwards, and fed back into the solve only where it binds. Somersloops change material flow, so they are set before the solve (brief §3).
+- **Shards, 2026-10-08:** Peter: "should note that adding shards would be a manual task unless i ask for it to be sharded." And: "so a shortfall shouldn't add shards that are not already allocated". factor never adds power shards by itself; a shortfall's fix may use shards already placed, never new ones.
+- **Refined again 2026-10-08 (product brief SC-6, round-6 review):** a pinned count that can't make a rising target at 100% holds. The rest is a named shortfall with fixes such as "unpin the count"; Peter chose "Hold the pin, name a shortfall". Demand beyond one resource node's ceiling is a named shortfall with the fix "add a resource node"; Peter chose "Name a shortfall".
+- **Refined further 2026-10-08 (product brief SC-6, SC-9):** when a target rises past what kept machines make at 100%, factor adds the fewest new machines and re-clocks all of them evenly, at or below 100%. Peter chose "Add machines" over "Overclock first" and "Name a shortfall". A released count pin re-minimises that node: Peter chose "Re-minimise that node" over "Keep current count".
+- **Refined 2026-10-08 (product brief SC-6):** after a target or cap change, existing machine counts are kept and only re-clocked; re-minimising is an explicit action. Peter chose "Keep counts, re-clock" over "Re-minimise every time" and "Keep only what I pinned". So fewest buildings applies at a first solve and on an explicit re-minimise (and, per the later refinement above, to a released count pin).
 - **Not selected:** optimising shard and Somersloop placement from stock (the brief's option B, mixed-integer), offered as "also optimise shards/sloops". Not rejected: the brief suggests adding it when it's wanted. Piecewise approximation (option b) was not selected either.
 - **Context:** D-007, D-008.
 - **Options:**
@@ -212,6 +221,7 @@ Every design decision and open question, one block each.
   - Whole machines come from rounding up after the solve in every tool read.
   - The brief's recommendation is "option A first": clock fixed before the solve, which is (c) above. Somersloop-stock optimisation as a mixed-integer model (its "option B") is added only when wanted.
   - This is the brief's D2.
+- **Note 2026-10-08:** where this block says "target or cap change", read "target change or pin" (D-018 amendment: no typed caps). Placed shards give headroom that factor may use before adding machines, and releasing a shard pin removes the shards (product brief SC-6, SC-9; Peter chose "Use placed headroom", round-7 review).
 
 ### D-021 Solver dependency
 - **Status:** ruled 2026-10-08 (brief §7 D3), via the option "HiGHS, own trait"
@@ -228,9 +238,9 @@ Every design decision and open question, one block each.
 
 ### D-022 Exactness: floats with a residual check, or exact rationals for results
 - **Status:** ruled 2026-10-08 (brief §7 D4), via the option "Exact fractions"
-- **Outcome:** solve in floating point for speed, then re-check the final answer in exact rational arithmetic, and show the rationals (37.5 = 75/2, 88.8888% = 8/9). Rounding for display never overdraws a limited input (D-008).
+- **Outcome:** solve in floating point for speed, then re-check the final answer in exact rational arithmetic, and show the rationals (37.5 = 75/2, 88.8889% ≈ 8/9). The exact plan never overdraws a limited input (D-008). **Amended 2026-10-08:** display rounds to nearest, like the game (see D-008's supersession). A clock rounded up can exceed its exact value by at most 0.00005 percentage points, and Peter chose "Say nothing" when asked whether factor should flag it (product brief SC-4). The original wording here, "Rounding for display never overdraws a limited input", is superseded.
 - **Rejected:** floats with only a residual tolerance check: rounding can still overdraw by a hair.
-- **Context:** D-008 requires exact clock values to 4 decimal places that never overdraw a limited input.
+- **Context:** D-008 requires exact clock values to 4 decimal places. The exact plan never overdraws a limited input; display rounding is covered by this block's amended Outcome.
 - **Recommended by the brief:** show rationals, and re-check the final basis in exact arithmetic. YAFC's precision bugs are the cautionary tale.
 
 ### D-023 Default objective and penalty weights
@@ -269,6 +279,7 @@ Research behind these lives in `docs/research/`:
 - **Superseded reading (Puck, 2026-10-08):** *skip* as "not wanted" and *later* as "not now". Wrong on both: it read his skips as refusals.
 
 A verdict is Peter's label on a catalogue row, not his words about a decision. Where a row maps to a decision below, the verdict is recorded there as evidence, and the decision stays open until he rules it.
+- **Note 2026-10-08:** "cap an input" above predates D-018's amendment. A resource is now limited by pinning its extractor's clock; there is no typed cap (product brief SC-9).
 
 ### D-012 Layer split: calculation, physical, presentation
 - **Status:** open, except the presentation boundary, which D-032 ruled on 2026-10-08: presentation is a separate, replaceable view. The physical layer and how physical limits reach the solver are still open.
@@ -325,7 +336,7 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
   - F-096 Collectibles map: *shape*, kept in round 2 over Puck's *skip*. Peter's note: "my primary use case for use case for sat calc is the map with the collectable, i even load my save to see what i missed and where things are. So to me this is core, but it can be after the planning part."
   - So collectibles matter to Peter, after planning, and they come with loading his save. That puts the save parser, which hangs on the licence decision (D-025), and randomised worlds (D-027) on the map's path.
 - **Peter, 2026-10-08, asked how the first build gets icons:** "this is initially for me only, we'll need a windows build of it i guess or i can copy a save over, want to get it working first before worrying about sharing."
-- **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared.
+- **Outcome (icons, first build):** extracted from Peter's own install for his own use. Nothing is redistributed, so the redistribution question waits until factor is shared: at whichever sharing gate comes first, the first public remote or the first build packaged for distribution (product brief HC-11).
 - **Still open:** how the files reach the extractor. Peter's options: a Windows build, or copying files over to the Mac ("i guess" — not settled). **Puck's note:** a save file carries node data (D-027) but no icons. Icons sit in the install's asset archives, so "copy a save over" covers the map side, not the icons.
 
 ### D-025 factor's own licence
@@ -350,6 +361,7 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **⚠ Platform tension, raised by the research:** with option (b), users extract from their own install, but four of the five games are Windows-only; only Factorio has a native macOS build. factor is macOS-first (D-001). The extractors are probably portable (inferred); getting Windows game files onto the Mac is the problem.
 - **Licences not checked:** the Satisfactory and Alchemy Factory pipelines depend on Oodle decompression.
 - **Related:** D-003 (generators) and D-004 (raw bundle out of git).
+- **Carried from the product brief (NG-5), 2026-10-08:** D-004 says to commit "a small extract" of the game data instead of the raw bundle. Once the repo has a public remote, that extract is redistribution, so it falls under this decision. The repo has no remote today. It must clear at whichever sharing gate comes first: the first public remote, or the first build packaged for distribution (product brief HC-11, FQ-8).
 
 ### D-027 Randomised 1.2 worlds
 - **Status:** open (data brief §8.5)
@@ -424,3 +436,9 @@ A verdict is Peter's label on a catalogue row, not his words about a decision. W
 - **The real test, which applies to every option (Puck's derivation):** the diagram must stay fast with hundreds of nodes, the whole point against Modeler. Proposal: a spike that renders a generated 500-node plan diagram in the leading candidate, measuring frame time and memory, before ruling.
 - **Agent coverage:** no current implementer agent builds in Dioxus or the native toolkits. Forge is backend Rust, and Rune is Svelte/TypeScript. A Dioxus choice means extending Forge's scope or hiring a view agent.
 - **Superseded on the Dioxus line (research §6):** the Blitz README now says "beta" (0.3.0-beta.2), but stable `dioxus-native` 0.7.10 still pulls the older Blitz line. The beta needs Dioxus 0.8 alpha, which is a third API cycle. Blitz bundles 15 MPL-2.0 packages (Servo's Stylo), can't style SVG fill or stroke, and doesn't support `unicode-bidi`. The webview statement still holds. Dioxus is not shortlisted.
+
+### D-037 The repo holds the design source; the Claude Design canvas is a view of it
+- **Status:** ruled 2026-10-08, by Peter accepting the design session's account
+- **Peter:** asked whether to record "the repo holds the design source, and the Claude Design canvas is a view published from it", he answered: "sure, that was how it told me it worked."
+- **Outcome:** design source lives in `docs/design/mockups/` (artboards, `canvas.json`, `factor-tokens.css`). The Claude Design canvas is published from it and is never edited as the original. Round-1 handoff material is kept verbatim under `docs/design/mockups/handoff-round1/`.
+- **Provenance:** the arrangement was set up by a separate Claude Design handoff session (task #3932). Its wording reached this log through that session, and Peter confirmed it here.

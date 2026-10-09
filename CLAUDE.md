@@ -6,6 +6,9 @@ benchmark it has to beat. Hobby project.
 
 ## Decisions
 
+**`docs/intent/factor.md` is the locked product brief** (what factor is for, its success criteria, hard
+constraints and the feature register). Read it before scoping any feature.
+
 **`docs/decisions.md` holds every design decision and open question.** Each block has a stable
 `D-NNN` id, Peter's words verbatim, the options considered, and a status. Read it before designing
 anything. Add new questions there, never inline here. This section lists only the **ruled** outcomes:
@@ -40,8 +43,9 @@ anything. Add new questions there, never inline here. This section lists only th
     are named, never a bare "infeasible".
 - **One view (D-024):** set targets and factor lays out the diagram. Edits to the diagram become constraints
   and re-solve. Free-hand drawing comes later on the same engine.
-- **Raw resources (D-018):** extraction is a recipe with no inputs in the model; the screen defaults to "free up
-  to a cap" until sourcing is turned on.
+- **Raw resources (D-018, amended):** extraction is a recipe with no inputs in the model. Its ceiling is
+  derived from the extractor, node purity and clock, never typed. factor picks a default extractor and
+  purity, and Peter can change them. One extractor per resource node, so more output needs more nodes.
 - **Plan files are SQLite (D-033):** a documented schema, and the way to get text out is a reader, not a
   text format. JSON, TOML and RON are rejected.
 - **Interface over tutorials (D-034):** design so no walkthrough is needed; reveal advanced options step by step.
