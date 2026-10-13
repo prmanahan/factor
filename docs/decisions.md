@@ -261,6 +261,19 @@ Every design decision and open question, one block each.
 - **Not selected:** two views from the start (a targets table plus a free canvas), and canvas-first like Modeler.
 - **Context:** YAFC's linked tables, Foreman2's nodes and Modeler's canvases are three interaction models over the same linear program. The brief's proposed engine shape compiles both front ends to one solver layer (brief §6).
 
+### D-038 GitHub is a mirror; factor lands on local main
+- **Status:** ruled 2026-10-13, via the option "Mirror, like mentat"
+- **Peter, 2026-10-13:** "lets put factor into my prmanahan org on github as a private repo so we can extract on a windows box to build that version of it."
+- **Peter, 2026-10-13:** asked to record it, he answered: "yes, record it in decisions.md"
+- **Outcome:** local `main` stays the trunk. Work lands on local `main` as before, and `main` is then pushed to the GitHub repo after each landing, so a Windows checkout can pull and build it. GitHub is a mirror, not the trunk: changes do not land through GitHub pull requests. The repo is private.
+- **Exists (measured 2026-10-13):** the private repo `github.com/prmanahan/factor`, created that day. `main` and the tag `brief/factor/intent-locked` are pushed. Only `main` is pushed; worktree branches stay local.
+- **Options:**
+  - **(a) Mirror, like mentat:** land locally, push `main` after each landing. Chosen.
+  - **(b) GitHub is the trunk:** every landing goes through a pull request on GitHub.
+  - **(c) Mirror, push only on request:** land locally, push only before a Windows session.
+- **Not selected:** (b) is slower per landing, and a private repo on GitHub's free plan has no branch-protection rulesets (measured on mentat, the sibling repo with the same setup: the rulesets API returns 403; not re-checked on factor), so the forge would not actually guard the trunk. (c) lets the Windows checkout fall behind silently.
+- **Context:** Windows is a named target (D-001: "nothing may rule Windows out"). The 585 MB game-data bundle stays out of git (D-004), so it is not in the GitHub repo. A Windows clone copies `CommunityResources.zip` from the game install, as `CLAUDE.md`'s `resources/` section describes.
+
 ---
 
 ## Open
