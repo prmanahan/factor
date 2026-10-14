@@ -54,7 +54,9 @@ anything. Add new questions there, never inline here. This section lists only th
   jams and starvation are a separate check over a solved plan, later (brain #3924).
 - **Calculation is separate from layout and drawing (D-009).** D-032 extends this: the drawing is a replaceable view.
 - **GitHub is a mirror (D-038):** local `main` is the trunk. `main` is pushed to the private repo
-  `prmanahan/factor` after each landing so a Windows box can build it. No PR flow.
+  `prmanahan/factor` after each landing so a Windows box can build it. No PR flow. A work branch is
+  pushed only when it needs a Windows build, and deleted from GitHub on landing. The build host reads
+  via a read-only deploy key.
 - **Tracking (D-010):** decisions go in `docs/decisions.md`, and work goes in brain project `factor` (id 40).
 
 ## Layout and vocabulary (D-011, applied)

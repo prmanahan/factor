@@ -263,14 +263,27 @@ Every design decision and open question, one block each.
 
 ### D-038 GitHub is a mirror; factor lands on local main
 - **Status:** ruled 2026-10-13, via the option "Mirror, like mentat"
+- **Amended:** 2026-10-14, branch rule and build-host credential (below)
 - **Peter, 2026-10-13:** "lets put factor into my prmanahan org on github as a private repo so we can extract on a windows box to build that version of it."
 - **Peter, 2026-10-13:** asked to record it, he answered: "yes, record it in decisions.md"
 - **Outcome:** local `main` stays the trunk. Work lands on local `main` as before, and `main` is then pushed to the GitHub repo after each landing, so a Windows checkout can pull and build it. GitHub is a mirror, not the trunk: changes do not land through GitHub pull requests. The repo is private.
+- **Amended 2026-10-14.** Peter picked options; the option text is Puck's, not Peter's words.
+  - **Branch rule** (option "Push a branch when a Windows build is needed"): `main` is pushed after each landing, unchanged. An unlanded work branch is pushed to GitHub only when that work needs a Windows build or check, and is deleted from GitHub once it lands. No other branches are pushed.
+  - **Build-host credential** (option "Read-only deploy key"): the Windows build host signs in to GitHub with a read-only deploy key generated on that machine and scoped to this repo only.
+  - **Superseded reading:** "Only `main` is pushed; worktree branches stay local" as a standing rule. It stays below as the 2026-10-13 measurement; the branch rule above now governs.
 - **Exists (measured 2026-10-13):** the private repo `github.com/prmanahan/factor`, created that day. `main` and the tag `brief/factor/intent-locked` are pushed. Only `main` is pushed; worktree branches stay local.
 - **Options:**
   - **(a) Mirror, like mentat:** land locally, push `main` after each landing. Chosen.
   - **(b) GitHub is the trunk:** every landing goes through a pull request on GitHub.
   - **(c) Mirror, push only on request:** land locally, push only before a Windows session.
+  - **Branch rule, 2026-10-14 (Puck's option text):**
+    - **(d) Push a branch when a Windows build is needed:** chosen.
+    - **(e) `main` only:** not selected. Windows builds only landed work, so a Windows-only break surfaces after landing, not before.
+    - **(f) Push every work branch:** not selected. More cleanup, and in-progress work becomes visible on GitHub.
+  - **Build-host credential, 2026-10-14 (Puck's option text):**
+    - **(g) Read-only deploy key:** chosen.
+    - **(h) Sign in as Peter with `gh auth login`:** not selected. It gives the box write access to every repo he owns.
+    - **(i) Fine-grained token:** not selected. It expires and must be renewed.
 - **Not selected:** (b) is slower per landing, and a private repo on GitHub's free plan has no branch-protection rulesets (measured on mentat, the sibling repo with the same setup: the rulesets API returns 403; not re-checked on factor), so the forge would not actually guard the trunk. (c) lets the Windows checkout fall behind silently.
 - **Context:** Windows is a named target (D-001: "nothing may rule Windows out"). The 585 MB game-data bundle stays out of git (D-004), so it is not in the GitHub repo. A Windows clone copies `CommunityResources.zip` from the game install, as `CLAUDE.md`'s `resources/` section describes.
 
